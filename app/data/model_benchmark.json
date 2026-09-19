@@ -1,0 +1,116 @@
+{
+  "leaderboard": [
+    {
+      "rank": 1,
+      "model": "Stochastic Gradient Descent (SGD)",
+      "accuracy": 85.96,
+      "precision": 84.96,
+      "recall": 92.22,
+      "f1_score": 88.44,
+      "type": "Linear Classifier / Hinge & Log Loss",
+      "highlight": true,
+      "badge": "Winner \ud83c\udfc6"
+    },
+    {
+      "rank": 2,
+      "model": "Logistic Regression",
+      "accuracy": 85.48,
+      "precision": 85.12,
+      "recall": 85.8,
+      "f1_score": 85.46,
+      "type": "Linear Model / Softmax",
+      "highlight": false,
+      "badge": "Runner Up"
+    },
+    {
+      "rank": 3,
+      "model": "CatBoost Classifier",
+      "accuracy": 84.35,
+      "precision": 84.1,
+      "recall": 84.6,
+      "f1_score": 84.35,
+      "type": "Gradient Boosted Decision Trees",
+      "highlight": false,
+      "badge": "Top Ensemble"
+    },
+    {
+      "rank": 4,
+      "model": "Support Vector Machines (SVC)",
+      "accuracy": 83.67,
+      "precision": 83.4,
+      "recall": 83.9,
+      "f1_score": 83.65,
+      "type": "Kernel SVM (RBF / Linear)",
+      "highlight": false,
+      "badge": "Kernel Method"
+    },
+    {
+      "rank": 5,
+      "model": "Random Forest Classifier",
+      "accuracy": 82.12,
+      "precision": 82.3,
+      "recall": 81.9,
+      "f1_score": 82.1,
+      "type": "Ensemble Bagging Trees",
+      "highlight": false,
+      "badge": "Bagging"
+    },
+    {
+      "rank": 6,
+      "model": "XGBoost Classifier",
+      "accuracy": 81.46,
+      "precision": 81.2,
+      "recall": 81.7,
+      "f1_score": 81.45,
+      "type": "Extreme Gradient Boosting",
+      "highlight": false,
+      "badge": "Boosting"
+    },
+    {
+      "rank": 7,
+      "model": "Multinomial Naive Bayes",
+      "accuracy": 78.79,
+      "precision": 79.1,
+      "recall": 78.5,
+      "f1_score": 78.8,
+      "type": "Probabilistic Classifier",
+      "highlight": false,
+      "badge": "Baseline"
+    }
+  ],
+  "winner_confusion_matrix": {
+    "labels": [
+      "Negative (0)",
+      "Positive/Neutral (1)"
+    ],
+    "matrix": [
+      [
+        2239,
+        841
+      ],
+      [
+        401,
+        4751
+      ]
+    ],
+    "true_negative": 2239,
+    "false_positive": 841,
+    "false_negative": 401,
+    "true_positive": 4751,
+    "total": 8232
+  },
+  "classification_report": {
+    "Negative": {
+      "precision": 0.848,
+      "recall": 0.727,
+      "f1_score": 0.783,
+      "support": 3080
+    },
+    "Positive_Neutral": {
+      "precision": 0.85,
+      "recall": 0.922,
+      "f1_score": 0.884,
+      "support": 5152
+    }
+  }
+}

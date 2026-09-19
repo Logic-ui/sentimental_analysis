@@ -1,0 +1,874 @@
+{
+  "summary": {
+    "total_tweets": 41157,
+    "unique_users": 41157,
+    "unique_locations": 12220,
+    "date_range": "Mar 16, 2020 to Apr 14, 2020",
+    "positive_pct": 43.85,
+    "negative_pct": 37.41,
+    "neutral_pct": 18.74,
+    "binary_accuracy_benchmark": 85.96
+  },
+  "sentiment_distribution": {
+    "five_class": {
+      "labels": [
+        "Positive",
+        "Negative",
+        "Neutral",
+        "Extremely Positive",
+        "Extremely Negative"
+      ],
+      "values": [
+        11422,
+        9917,
+        7713,
+        6624,
+        5481
+      ],
+      "percentages": [
+        27.75,
+        24.1,
+        18.74,
+        16.09,
+        13.32
+      ]
+    },
+    "three_class": {
+      "labels": [
+        "Positive",
+        "Negative",
+        "Neutral"
+      ],
+      "values": [
+        18046,
+        15398,
+        7713
+      ],
+      "percentages": [
+        43.85,
+        37.41,
+        18.74
+      ]
+    },
+    "binary": {
+      "labels": [
+        "Positive/Neutral",
+        "Negative"
+      ],
+      "values": [
+        25759,
+        15398
+      ],
+      "percentages": [
+        62.59,
+        37.41
+      ]
+    }
+  },
+  "timeline": {
+    "labels": [
+      "Mar 16, 2020",
+      "Mar 17, 2020",
+      "Mar 18, 2020",
+      "Mar 19, 2020",
+      "Mar 20, 2020",
+      "Mar 21, 2020",
+      "Mar 22, 2020",
+      "Mar 23, 2020",
+      "Mar 24, 2020",
+      "Mar 25, 2020",
+      "Mar 26, 2020",
+      "Mar 27, 2020",
+      "Mar 28, 2020",
+      "Mar 29, 2020",
+      "Mar 30, 2020",
+      "Mar 31, 2020",
+      "Apr 01, 2020",
+      "Apr 02, 2020",
+      "Apr 03, 2020",
+      "Apr 04, 2020",
+      "Apr 05, 2020",
+      "Apr 06, 2020",
+      "Apr 07, 2020",
+      "Apr 08, 2020",
+      "Apr 09, 2020",
+      "Apr 10, 2020",
+      "Apr 11, 2020",
+      "Apr 12, 2020",
+      "Apr 13, 2020",
+      "Apr 14, 2020"
+    ],
+    "values": [
+      656,
+      1977,
+      2742,
+      3215,
+      3448,
+      2653,
+      2114,
+      2062,
+      1480,
+      2979,
+      1277,
+      345,
+      23,
+      125,
+      87,
+      316,
+      630,
+      954,
+      810,
+      767,
+      1131,
+      1742,
+      1843,
+      1881,
+      1471,
+      1005,
+      909,
+      803,
+      1428,
+      284
+    ]
+  },
+  "locations": {
+    "labels": [
+      "London",
+      "United States",
+      "London, England",
+      "New York, NY",
+      "Washington, DC",
+      "United Kingdom",
+      "Los Angeles, CA",
+      "India",
+      "UK",
+      "Australia",
+      "USA",
+      "Canada",
+      "England, United Kingdom",
+      "Toronto, Ontario",
+      "Global"
+    ],
+    "values": [
+      540,
+      528,
+      520,
+      395,
+      373,
+      337,
+      281,
+      268,
+      232,
+      225,
+      223,
+      191,
+      191,
+      160,
+      159
+    ]
+  },
+  "missing_data": {
+    "columns": [
+      "UserName",
+      "ScreenName",
+      "Location",
+      "TweetAt",
+      "OriginalTweet",
+      "Sentiment"
+    ],
+    "missing_counts": [
+      0,
+      0,
+      8590,
+      0,
+      0,
+      0
+    ],
+    "missing_pct": [
+      0.0,
+      0.0,
+      20.87,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "hashtags": {
+    "Extremely Positive": {
+      "labels": [
+        "#covid2019",
+        "#toiletpaper",
+        "#socialdistancing",
+        "#coronacrisis",
+        "#stayathome",
+        "#staysafe",
+        "#stayhome",
+        "#handsanitizer",
+        "#stayhomesavelives",
+        "#sanitizer",
+        "#pandemic",
+        "#quarantine"
+      ],
+      "values": [
+        256,
+        208,
+        179,
+        117,
+        85,
+        84,
+        83,
+        83,
+        80,
+        72,
+        69,
+        58
+      ]
+    },
+    "Positive": {
+      "labels": [
+        "#covid2019",
+        "#toiletpaper",
+        "#socialdistancing",
+        "#coronacrisis",
+        "#stayhome",
+        "#corona",
+        "#pandemic",
+        "#retail",
+        "#coronavirusoutbreak",
+        "#quarantine",
+        "#lockdown",
+        "#supermarket"
+      ],
+      "values": [
+        476,
+        429,
+        277,
+        167,
+        133,
+        129,
+        129,
+        118,
+        110,
+        108,
+        105,
+        104
+      ]
+    },
+    "Neutral": {
+      "labels": [
+        "#toiletpaper",
+        "#covid2019",
+        "#socialdistancing",
+        "#coronacrisis",
+        "#stayhome",
+        "#corona",
+        "#retail",
+        "#pandemic",
+        "#coronavirusoutbreak",
+        "#lockdown",
+        "#quarantine",
+        "#supermarket"
+      ],
+      "values": [
+        543,
+        303,
+        237,
+        140,
+        128,
+        126,
+        124,
+        119,
+        114,
+        104,
+        98,
+        97
+      ]
+    },
+    "Negative": {
+      "labels": [
+        "#covid2019",
+        "#toiletpaper",
+        "#coronacrisis",
+        "#socialdistancing",
+        "#pandemic",
+        "#panicbuying",
+        "#lockdown",
+        "#coronavirusoutbreak",
+        "#corona",
+        "#stayhome",
+        "#supermarket",
+        "#food"
+      ],
+      "values": [
+        407,
+        311,
+        204,
+        177,
+        120,
+        107,
+        99,
+        98,
+        90,
+        90,
+        89,
+        82
+      ]
+    },
+    "Extremely Negative": {
+      "labels": [
+        "#covid2019",
+        "#coronacrisis",
+        "#toiletpaper",
+        "#socialdistancing",
+        "#panicbuying",
+        "#coronavirusoutbreak",
+        "#oil",
+        "#stophoarding",
+        "#stoppanicbuying",
+        "#coronavirusupdate",
+        "#covid19uk",
+        "#pandemic"
+      ],
+      "values": [
+        231,
+        139,
+        123,
+        68,
+        67,
+        63,
+        62,
+        61,
+        57,
+        48,
+        44,
+        41
+      ]
+    },
+    "Overall": {
+      "labels": [
+        "#coronavirus",
+        "#covid19",
+        "#covid_19",
+        "#covid2019",
+        "#covid",
+        "#toiletpaper",
+        "#socialdistancing",
+        "#coronacrisis",
+        "#pandemic",
+        "#stayhome",
+        "#coronavirusoutbreak",
+        "#coronaviruspandemic",
+        "#corona",
+        "#lockdown",
+        "#stayathome"
+      ],
+      "values": [
+        15986,
+        4841,
+        3165,
+        1673,
+        1632,
+        1614,
+        938,
+        767,
+        478,
+        454,
+        440,
+        440,
+        424,
+        388,
+        384
+      ]
+    }
+  },
+  "word_frequencies": {
+    "All": [
+      {
+        "text": "covid",
+        "weight": 5773
+      },
+      {
+        "text": "coronavirus",
+        "weight": 4399
+      },
+      {
+        "text": "prices",
+        "weight": 1937
+      },
+      {
+        "text": "supermarket",
+        "weight": 1767
+      },
+      {
+        "text": "food",
+        "weight": 1743
+      },
+      {
+        "text": "store",
+        "weight": 1693
+      },
+      {
+        "text": "grocery",
+        "weight": 1505
+      },
+      {
+        "text": "consumer",
+        "weight": 1169
+      },
+      {
+        "text": "shopping",
+        "weight": 854
+      },
+      {
+        "text": "pandemic",
+        "weight": 808
+      },
+      {
+        "text": "online",
+        "weight": 803
+      },
+      {
+        "text": "their",
+        "weight": 776
+      },
+      {
+        "text": "need",
+        "weight": 660
+      },
+      {
+        "text": "workers",
+        "weight": 651
+      },
+      {
+        "text": "panic",
+        "weight": 606
+      },
+      {
+        "text": "sanitizer",
+        "weight": 565
+      },
+      {
+        "text": "time",
+        "weight": 560
+      },
+      {
+        "text": "demand",
+        "weight": 539
+      },
+      {
+        "text": "home",
+        "weight": 526
+      },
+      {
+        "text": "help",
+        "weight": 525
+      },
+      {
+        "text": "hand",
+        "weight": 513
+      },
+      {
+        "text": "going",
+        "weight": 480
+      },
+      {
+        "text": "stock",
+        "weight": 475
+      },
+      {
+        "text": "work",
+        "weight": 420
+      },
+      {
+        "text": "please",
+        "weight": 415
+      },
+      {
+        "text": "buying",
+        "weight": 413
+      },
+      {
+        "text": "crisis",
+        "weight": 397
+      },
+      {
+        "text": "toiletpaper",
+        "weight": 394
+      },
+      {
+        "text": "today",
+        "weight": 382
+      },
+      {
+        "text": "retail",
+        "weight": 370
+      }
+    ],
+    "Positive": [
+      {
+        "text": "covid",
+        "weight": 2820
+      },
+      {
+        "text": "coronavirus",
+        "weight": 2107
+      },
+      {
+        "text": "store",
+        "weight": 946
+      },
+      {
+        "text": "supermarket",
+        "weight": 877
+      },
+      {
+        "text": "food",
+        "weight": 819
+      },
+      {
+        "text": "grocery",
+        "weight": 802
+      },
+      {
+        "text": "prices",
+        "weight": 773
+      },
+      {
+        "text": "consumer",
+        "weight": 588
+      },
+      {
+        "text": "hand",
+        "weight": 521
+      },
+      {
+        "text": "sanitizer",
+        "weight": 514
+      },
+      {
+        "text": "online",
+        "weight": 506
+      },
+      {
+        "text": "shopping",
+        "weight": 506
+      },
+      {
+        "text": "help",
+        "weight": 495
+      },
+      {
+        "text": "their",
+        "weight": 444
+      },
+      {
+        "text": "pandemic",
+        "weight": 399
+      },
+      {
+        "text": "workers",
+        "weight": 391
+      },
+      {
+        "text": "need",
+        "weight": 359
+      },
+      {
+        "text": "please",
+        "weight": 354
+      },
+      {
+        "text": "home",
+        "weight": 324
+      },
+      {
+        "text": "time",
+        "weight": 324
+      },
+      {
+        "text": "stock",
+        "weight": 268
+      },
+      {
+        "text": "stay",
+        "weight": 260
+      },
+      {
+        "text": "demand",
+        "weight": 256
+      },
+      {
+        "text": "keep",
+        "weight": 235
+      },
+      {
+        "text": "going",
+        "weight": 233
+      },
+      {
+        "text": "safe",
+        "weight": 227
+      },
+      {
+        "text": "thank",
+        "weight": 224
+      },
+      {
+        "text": "work",
+        "weight": 222
+      },
+      {
+        "text": "make",
+        "weight": 213
+      },
+      {
+        "text": "retail",
+        "weight": 212
+      }
+    ],
+    "Negative": [
+      {
+        "text": "covid",
+        "weight": 2741
+      },
+      {
+        "text": "coronavirus",
+        "weight": 2203
+      },
+      {
+        "text": "prices",
+        "weight": 1220
+      },
+      {
+        "text": "food",
+        "weight": 1175
+      },
+      {
+        "text": "supermarket",
+        "weight": 879
+      },
+      {
+        "text": "store",
+        "weight": 709
+      },
+      {
+        "text": "panic",
+        "weight": 668
+      },
+      {
+        "text": "grocery",
+        "weight": 647
+      },
+      {
+        "text": "consumer",
+        "weight": 494
+      },
+      {
+        "text": "crisis",
+        "weight": 460
+      },
+      {
+        "text": "demand",
+        "weight": 420
+      },
+      {
+        "text": "buying",
+        "weight": 418
+      },
+      {
+        "text": "pandemic",
+        "weight": 416
+      },
+      {
+        "text": "their",
+        "weight": 376
+      },
+      {
+        "text": "need",
+        "weight": 328
+      },
+      {
+        "text": "shopping",
+        "weight": 306
+      },
+      {
+        "text": "workers",
+        "weight": 294
+      },
+      {
+        "text": "time",
+        "weight": 293
+      },
+      {
+        "text": "online",
+        "weight": 269
+      },
+      {
+        "text": "home",
+        "weight": 268
+      },
+      {
+        "text": "stop",
+        "weight": 266
+      },
+      {
+        "text": "going",
+        "weight": 263
+      },
+      {
+        "text": "stock",
+        "weight": 251
+      },
+      {
+        "text": "shelves",
+        "weight": 241
+      },
+      {
+        "text": "work",
+        "weight": 208
+      },
+      {
+        "text": "price",
+        "weight": 206
+      },
+      {
+        "text": "supply",
+        "weight": 194
+      },
+      {
+        "text": "toilet",
+        "weight": 189
+      },
+      {
+        "text": "could",
+        "weight": 181
+      },
+      {
+        "text": "today",
+        "weight": 174
+      }
+    ],
+    "Neutral": [
+      {
+        "text": "covid",
+        "weight": 2924
+      },
+      {
+        "text": "coronavirus",
+        "weight": 2495
+      },
+      {
+        "text": "supermarket",
+        "weight": 863
+      },
+      {
+        "text": "store",
+        "weight": 840
+      },
+      {
+        "text": "prices",
+        "weight": 785
+      },
+      {
+        "text": "grocery",
+        "weight": 746
+      },
+      {
+        "text": "consumer",
+        "weight": 668
+      },
+      {
+        "text": "shopping",
+        "weight": 503
+      },
+      {
+        "text": "online",
+        "weight": 468
+      },
+      {
+        "text": "food",
+        "weight": 432
+      },
+      {
+        "text": "pandemic",
+        "weight": 379
+      },
+      {
+        "text": "toiletpaper",
+        "weight": 371
+      },
+      {
+        "text": "their",
+        "weight": 251
+      },
+      {
+        "text": "retail",
+        "weight": 226
+      },
+      {
+        "text": "home",
+        "weight": 219
+      },
+      {
+        "text": "need",
+        "weight": 211
+      },
+      {
+        "text": "toilet",
+        "weight": 206
+      },
+      {
+        "text": "paper",
+        "weight": 202
+      },
+      {
+        "text": "stock",
+        "weight": 181
+      },
+      {
+        "text": "time",
+        "weight": 179
+      },
+      {
+        "text": "lockdown",
+        "weight": 176
+      },
+      {
+        "text": "going",
+        "weight": 173
+      },
+      {
+        "text": "stores",
+        "weight": 168
+      },
+      {
+        "text": "today",
+        "weight": 156
+      },
+      {
+        "text": "socialdistancing",
+        "weight": 155
+      },
+      {
+        "text": "outbreak",
+        "weight": 153
+      },
+      {
+        "text": "local",
+        "weight": 152
+      },
+      {
+        "text": "workers",
+        "weight": 146
+      },
+      {
+        "text": "impact",
+        "weight": 143
+      },
+      {
+        "text": "still",
+        "weight": 139
+      }
+    ]
+  }
+}

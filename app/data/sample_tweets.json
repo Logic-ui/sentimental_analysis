@@ -1,0 +1,38 @@
+[
+  {
+    "category": "Extremely Positive",
+    "sentiment": "Positive",
+    "text": "Supermarket and healthcare workers are real heroes! Thank you to everyone stocking shelves and risking their health during this COVID-19 emergency. We appreciate you!",
+    "location": "New York, USA"
+  },
+  {
+    "category": "Positive",
+    "sentiment": "Positive",
+    "text": "Local grocery stores are offering special early shopping hours for senior citizens and vulnerable groups. Wonderful community support during the coronavirus pandemic!",
+    "location": "London, UK"
+  },
+  {
+    "category": "Neutral",
+    "sentiment": "Neutral",
+    "text": "Retail stores in California announce updated operating hours and customer limits starting Monday due to state COVID-19 health directives.",
+    "location": "Los Angeles, CA"
+  },
+  {
+    "category": "Negative",
+    "sentiment": "Negative",
+    "text": "Horrible price gouging on hand sanitizer and masks online! Retailers charging $50 for a small bottle is pure greed during a coronavirus crisis.",
+    "location": "Chicago, IL"
+  },
+  {
+    "category": "Extremely Negative",
+    "sentiment": "Negative",
+    "text": "Total panic buying chaos at the supermarket today. Shelves are completely wiped clean, no toilet paper, no canned food, and people are fighting in aisles. Disgraceful!",
+    "location": "Manchester, UK"
+  },
+  {
+    "category": "Supply Chain / Retail",
+    "sentiment": "Neutral",
+    "text": "Supply chain managers confirm food deliveries will continue uninterrupted despite nationwide lockdowns and social distancing guidelines.",
+    "location": "Toronto, Canada"
+  }
+]

@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>COVID-19 Sentiment AI | Coronavirus Tweet Analysis & Prediction Dashboard</title>
+  <meta name="description" content="State-of-the-art Coronavirus Tweet Sentiment Analysis Dashboard. Featuring real-time ML predictions (SGD 85.96% accuracy), interactive EDA charts, model benchmarks, hashtag intelligence, and batch processing.">
+  <meta name="keywords" content="Sentiment Analysis, Coronavirus, COVID-19, Machine Learning, SGD Classifier, NLP, Tweet Analysis, Data Visualization">
+  
+  <!-- Modern Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js for high performance interactive charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  
+  <!-- Custom Design System Stylesheet -->
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="dark-theme">
+  <!-- Ambient background glow layers -->
+  <div class="bg-glow glow-1"></div>
+  <div class="bg-glow glow-2"></div>
+  <div class="bg-glow glow-3"></div>
+
+  <!-- Top Global Navigation & Hero Bar -->
+  <header class="app-header" id="app-header">
+    <div class="header-container">
+      <div class="brand-section">
+        <div class="brand-logo">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M12 3v3m0 12v3M3 12h3m12 0h3"></path>
+            <path d="M6 6l2.5 2.5m7 7l2.5 2.5M18 6l-2.5 2.5m-7 7l-2.5 2.5"></path>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1 class="brand-title">COVID-19 <span class="text-gradient">SENTIMENT AI</span></h1>
+          <p class="brand-subtitle">Coronavirus Tweet Intelligence & Prediction Engine</p>
+        </div>
+      </div>
+
+      <div class="header-stats">
+        <div class="stat-pill" title="Top Performing Algorithm from Notebook">
+          <span class="status-dot pulse-green"></span>
+          <span class="stat-label">Model:</span>
+          <span class="stat-value text-emerald">SGD (85.96% Acc)</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-label">Dataset:</span>
+          <span class="stat-value" id="header-total-tweets">41,157 Tweets</span>
+        </div>
+        <div class="stat-pill hide-mobile">
+          <span class="stat-label">Dates:</span>
+          <span class="stat-value">Mar–Apr 2020</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="main-nav" id="main-nav" aria-label="Main Dashboard Navigation">
+      <div class="nav-container">
+        <button class="nav-tab active" id="tab-btn-predict" data-tab="predict-view">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+          <span>Live Predictor</span>
+        </button>
+        <button class="nav-tab" id="tab-btn-eda" data-tab="eda-view">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+          <span>Dataset EDA Graphs</span>
+        </button>
+        <button class="nav-tab" id="tab-btn-benchmarks" data-tab="benchmarks-view">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          <span>Model Leaderboard</span>
+        </button>
+        <button class="nav-tab" id="tab-btn-hashtags" data-tab="hashtags-view">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="9" x2="20" y2="9"></line><line x1="4" y1="15" x2="20" y2="15"></line><line x1="10" y1="3" x2="8" y2="21"></line><line x1="16" y1="3" x2="14" y2="21"></line></svg>
+          <span>Hashtags & Words</span>
+        </button>
+        <button class="nav-tab" id="tab-btn-batch" data-tab="batch-view">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          <span>Batch Analyzer</span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="app-main" id="app-main">
+    
+    <!-- ============================================================= -->
+    <!-- VIEW 1: LIVE REAL-TIME SENTIMENT PREDICTOR                    -->
+    <!-- ============================================================= -->
+    <section class="tab-view active" id="predict-view" aria-labelledby="tab-btn-predict">
+      <div class="view-intro">
+        <h2>Live Coronavirus Tweet Sentiment Predictor</h2>
+        <p>Type any tweet, feedback, or retail observation to classify sentiment in real time using models trained on 41,157 tweets.</p>
+      </div>
+
+      <div class="predictor-grid">
+        <!-- Input & Controls Column -->
+        <div class="glass-card predictor-input-card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-badge">INPUT CONSOLE</span>
+              <h3 class="card-title">Analyze Tweet Content</h3>
+            </div>
+            <div class="control-row">
+              <div class="control-group">
+                <label for="model-select">ML Classifier:</label>
+                <select id="model-select" class="custom-select">
+                  <option value="sgd" selected>SGD Classifier (85.96% Winner)</option>
+                  <option value="logistic_regression">Logistic Regression (85.48%)</option>
+                  <option value="naive_bayes">Multinomial Naive Bayes (78.79%)</option>
+                </select>
+              </div>
+
+              <div class="control-group">
+                <label for="mode-select">Classification Mode:</label>
+                <select id="mode-select" class="custom-select">
+                  <option value="three_class" selected>3-Class (Positive / Neutral / Negative)</option>
+                  <option value="binary">Binary (Positive-Neutral vs Negative)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="textarea-wrapper">
+              <textarea 
+                id="tweet-input" 
+                class="custom-textarea" 
+                rows="5" 
+                placeholder="Paste or type a tweet here (e.g. 'Supermarket staff are doing an incredible job keeping shelves stocked during COVID-19!')..."
+              ></textarea>
+              <div class="textarea-footer">
+                <span class="char-count" id="char-count">0 characters</span>
+                <button class="clear-btn" id="clear-input-btn" title="Clear text">Clear</button>
+              </div>
+            </div>
+
+            <!-- Pre-curated Sample Tweets -->
+            <div class="samples-wrapper">
+              <span class="samples-title">⚡ Quick Test with Real Pandemic Tweets:</span>
+              <div class="sample-chips" id="sample-chips-container">
+                <!-- Dynamically populated sample chips -->
+                <button class="chip-btn chip-pos" data-sample-idx="0">🦸 Healthcare Heroes</button>
+                <button class="chip-btn chip-pos" data-sample-idx="1">🛒 Senior Shopping</button>
+                <button class="chip-btn chip-neu" data-sample-idx="2">📋 Store Hours Update</button>
+                <button class="chip-btn chip-neg" data-sample-idx="3">💸 Price Gouging</button>
+                <button class="chip-btn chip-neg" data-sample-idx="4">🚨 Supermarket Panic</button>
+              </div>
+            </div>
+
+            <div class="action-row">
+              <button class="btn btn-primary" id="predict-submit-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                <span>Run Sentiment Prediction</span>
+                <span class="shortcut-tag">Ctrl + Enter</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Prediction Result Output Column -->
+        <div class="glass-card predictor-result-card" id="predictor-result-card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-badge">PREDICTION OUTPUT</span>
+              <h3 class="card-title">Inference Intelligence</h3>
+            </div>
+            <span class="model-tag" id="active-model-tag">SGD Classifier</span>
+          </div>
+
+          <div class="card-body">
+            <!-- Main Sentiment Hero Card -->
+            <div class="sentiment-hero" id="sentiment-hero">
+              <div class="sentiment-icon-box" id="sentiment-icon-box">
+                <svg id="sentiment-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+              </div>
+              <div class="sentiment-meta">
+                <span class="sentiment-status-label">Predicted Sentiment</span>
+                <h3 class="sentiment-result-text" id="sentiment-result-text">Ready for Input</h3>
+                <div class="confidence-badge" id="confidence-badge">
+                  <span class="conf-dot"></span>
+                  <span id="confidence-val">--%</span> Confidence
+                </div>
+              </div>
+            </div>
+
+            <!-- Probability Breakdown Meter -->
+            <div class="probability-section">
+              <h4 class="section-subtitle">Class Probability Distribution</h4>
+              <div class="probability-bars" id="probability-bars-container">
+                <div class="prob-row" id="prob-row-pos">
+                  <div class="prob-header">
+                    <span class="prob-name"><span class="dot dot-pos"></span> Positive</span>
+                    <span class="prob-pct" id="prob-pct-pos">--%</span>
+                  </div>
+                  <div class="progress-track">
+                    <div class="progress-fill fill-pos" id="prob-bar-pos" style="width: 0%"></div>
+                  </div>
+                </div>
+
+                <div class="prob-row" id="prob-row-neu">
+                  <div class="prob-header">
+                    <span class="prob-name"><span class="dot dot-neu"></span> Neutral</span>
+                    <span class="prob-pct" id="prob-pct-neu">--%</span>
+                  </div>
+                  <div class="progress-track">
+                    <div class="progress-fill fill-neu" id="prob-bar-neu" style="width: 0%"></div>
+                  </div>
+                </div>
+
+                <div class="prob-row" id="prob-row-neg">
+                  <div class="prob-header">
+                    <span class="prob-name"><span class="dot dot-neg"></span> Negative</span>
+                    <span class="prob-pct" id="prob-pct-neg">--%</span>
+                  </div>
+                  <div class="progress-track">
+                    <div class="progress-fill fill-neg" id="prob-bar-neg" style="width: 0%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Influential Keywords Extracted -->
+            <div class="keywords-section">
+              <h4 class="section-subtitle">Top Sentiment-Driving Words in Tweet</h4>
+              <div class="keyword-tags" id="keyword-tags-container">
+                <span class="no-keywords">Run analysis to extract key terms</span>
+              </div>
+            </div>
+
+            <!-- NLP Preprocessing Pipeline Inspector -->
+            <div class="pipeline-inspector">
+              <div class="pipeline-header" id="pipeline-toggle-btn">
+                <div class="pipeline-title-group">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+                  <span>NLP Preprocessing Pipeline Steps</span>
+                </div>
+                <span class="accordion-arrow">▼</span>
+              </div>
+              <div class="pipeline-content" id="pipeline-content">
+                <div class="step-item">
+                  <span class="step-num">Step 1</span>
+                  <div class="step-desc">
+                    <strong>URL & Mention Removal:</strong>
+                    <div class="code-snippet" id="step-url-mention">--</div>
+                  </div>
+                </div>
+                <div class="step-item">
+                  <span class="step-num">Step 2</span>
+                  <div class="step-desc">
+                    <strong>Punctuation & Character Cleaning:</strong>
+                    <div class="code-snippet" id="step-clean-text">--</div>
+                  </div>
+                </div>
+                <div class="step-item">
+                  <span class="step-num">Step 3</span>
+                  <div class="step-desc">
+                    <strong>Tokenization & Porter Stemming:</strong>
+                    <div class="tokens-pill-list" id="step-stemmed-tokens">
+                      <span class="token-empty">Tokens will appear after prediction</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <!-- VIEW 2: EXPLORATORY DATA ANALYSIS (EDA) GRAPHS                -->
+    <!-- ============================================================= -->
+    <section class="tab-view" id="eda-view" aria-labelledby="tab-btn-eda">
+      <div class="view-intro">
+        <h2>Exploratory Data Analysis (EDA) Insights</h2>
+        <p>Interactive visualizations representing sentiment distributions, timeline frequency, and geographic hotspots across 41,157 coronavirus tweets.</p>
+      </div>
+
+      <!-- Quick KPI Cards -->
+      <div class="kpi-grid">
+        <div class="glass-card kpi-card">
+          <div class="kpi-icon icon-cyan">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-label">Total Tweets Analyzed</span>
+            <h3 class="kpi-value" id="kpi-total-tweets">41,157</h3>
+            <span class="kpi-sub text-emerald">100% Validated Data</span>
+          </div>
+        </div>
+
+        <div class="glass-card kpi-card">
+          <div class="kpi-icon icon-emerald">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-label">Positive / Neutral Sentiment</span>
+            <h3 class="kpi-value" id="kpi-pos-pct">62.6%</h3>
+            <span class="kpi-sub">25,759 Tweets</span>
+          </div>
+        </div>
+
+        <div class="glass-card kpi-card">
+          <div class="kpi-icon icon-rose">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg>
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-label">Negative Sentiment</span>
+            <h3 class="kpi-value" id="kpi-neg-pct">37.4%</h3>
+            <span class="kpi-sub">15,398 Tweets</span>
+          </div>
+        </div>
+
+        <div class="glass-card kpi-card">
+          <div class="kpi-icon icon-violet">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-label">Global Unique Locations</span>
+            <h3 class="kpi-value" id="kpi-locations">12,220</h3>
+            <span class="kpi-sub">Worldwide Coverage</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Grid -->
+      <div class="charts-grid">
+        <!-- Chart 1: Sentiment Distribution (Donut) -->
+        <div class="glass-card chart-card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-badge">CLASS PROPORTIONS</span>
+              <h3 class="card-title">Sentiment Distribution Breakdown</h3>
+            </div>
+            <div class="chart-toggle-group">
+              <button class="pill-btn active" id="btn-dist-5">5-Class</button>
+              <button class="pill-btn" id="btn-dist-3">3-Class</button>
+              <button class="pill-btn" id="btn-dist-bin">Binary</button>
+            </div>
+          </div>
+          <div class="card-body chart-body">
+            <div class="chart-container donut-container">
+              <canvas id="sentimentDistChart"></canvas>
+            </div>
+            <div class="chart-legend-custom" id="sentiment-custom-legend"></div>
+          </div>
+        </div>
+
+        <!-- Chart 2: Timeline Trends -->
+        <div class="glass-card chart-card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-badge">TEMPORAL ANALYSIS</span>
+              <h3 class="card-title">Daily Coronavirus Tweet Volume (TweetAt)</h3>
+            </div>
+            <span class="info-pill">March 16 – April 14, 2020</span>
+          </div>
+          <div class="card-body chart-body">
+            <div class="chart-container">
+              <canvas id="timelineChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chart 3: Top Tweet Locations -->
+        <div class="glass-card chart-card full-width">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-badge">GEOGRAPHIC HOTSPOTS</span>
+              <h3 class="card-title">Top 15 Most Active Tweet Locations</h3>
+            </div>
+            <span class="info-pill">Cities & Countries</span>
+          </div>
+          <div class="card-body chart-body">
+            <div class="chart-container bar-tall">
+              <canvas id="locationChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chart 4: Dataset Integrity Profile -->
+        <div class="glass-card chart-card full-width">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-badge">DATA INTEGRITY</span>
+              <h3 class="card-title">Dataset Health & Missing Feature Heatmap</h3>
+            </div>
+            <span class="info-pill">df.isnull() Audit</span>
+          </div>
+          <div class="card-body">
+            <div class="integrity-grid" id="integrity-grid-container">
+              <!-- Dynamically populated column audit cards -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <!-- VIEW 3: MODEL BENCHMARKS & LEADERBOARD                        -->
+    <!-- ============================================================= -->
+    <section class="tab-view" id="benchmarks-view" aria-labelledby="tab-btn-benchmarks">
+      <div class="view-intro">
+        <h2>Machine Learning Algorithm Benchmarks</h2>
+        <p>Direct comparison of 7 ML models evaluated on the coronavirus tweets dataset, matching the experimental results from the Jupyter Notebook.</p>
+      </div>
+
+      <!-- Benchmarks Leaderboard -->
+      <div class="benchmarks-grid">
+        <div class="glass-card full-width">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-badge">LEADERBOARD</span>
+              <h3 class="card-title">Model Comparison & Test Accuracy Ranking</h3>
+            </div>
+            <div class="metric-filter-group">
+              <button class="pill-btn active" id="filter-acc">Accuracy</button>
+              <button class="pill-btn" id="filter-f1">F1-Score</button>
+              <button class="pill-btn" id="filter-prec">Precision</button>
+              <button class="pill-btn" id="filter-rec">Recall</button>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <!-- Leaderboard Table -->
+            <div class="leaderboard-table-wrapper">
+              <table class="leaderboard-table" id="leaderboard-table">
+                <thead>
+                  <tr>
+                    <th>Rank</th>
+                    <th>Model Architecture</th>
+                    <th>Family / Type</th>
+                    <th>Test Accuracy</th>
+                    <th>Precision</th>
+                    <th>Recall</th>
+                    <th>F1-Score</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="leaderboard-tbody">
+                  <!-- Populated dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Model Evaluation Details: Confusion Matrix & Classification Report -->
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-badge">CONFUSION MATRIX</span>
+              <h3 class="card-title">Winner Model (SGD Classifier) Matrix</h3>
+            </div>
+            <span class="model-tag">Test Validation Set</span>
+          </div>
+          <div class="card-body">
+            <div class="cm-wrapper" id="cm-container">
+              <!-- Dynamic 2x2 Heatmap -->
+              <div class="cm-labels-top">
+                <span class="cm-axis-title">Predicted Labels</span>
+                <div class="cm-axis-cols">
+                  <span>Negative (0)</span>
+                  <span>Positive / Neutral (1)</span>
+                </div>
+              </div>
+              <div class="cm-body-row">
+                <div class="cm-labels-left">
+                  <span class="cm-axis-title-v">True Labels</span>
+                  <div class="cm-axis-rows">
+                    <span>Negative (0)</span>
+                    <span>Positive / Neutral (1)</span>
+                  </div>
+                </div>
+                <div class="cm-matrix-grid">
+                  <div class="cm-cell cell-tn" id="cm-tn" title="True Negative">
+                    <span class="cm-cell-label">True Neg (TN)</span>
+                    <strong class="cm-cell-val" id="val-tn">--</strong>
+                    <span class="cm-cell-sub">Correctly Negative</span>
+                  </div>
+                  <div class="cm-cell cell-fp" id="cm-fp" title="False Positive (Type I Error)">
+                    <span class="cm-cell-label">False Pos (FP)</span>
+                    <strong class="cm-cell-val" id="val-fp">--</strong>
+                    <span class="cm-cell-sub">Type I Error</span>
+                  </div>
+                  <div class="cm-cell cell-fn" id="cm-fn" title="False Negative (Type II Error)">
+                    <span class="cm-cell-label">False Neg (FN)</span>
+                    <strong class="cm-cell-val" id="val-fn">--</strong>
+                    <span class="cm-cell-sub">Type II Error</span>
+                  </div>
+                  <div class="cm-cell cell-tp" id="cm-tp" title="True Positive">
+                    <span class="cm-cell-label">True Pos (TP)</span>
+                    <strong class="cm-cell-val" id="val-tp">--</strong>
+                    <span class="cm-cell-sub">Correctly Positive</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="cm-legend-row">
+              <span class="cm-legend-item text-emerald">● Low Type 1 & Type 2 Error Rate</span>
+              <span class="cm-legend-item text-cyan">● Stratified 80/20 Train-Test Split</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accuracy Benchmark Horizontal Bar Chart -->
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-badge">VISUAL BENCHMARK</span>
+              <h3 class="card-title">Test Accuracy Comparison Plot</h3>
+            </div>
+            <span class="info-pill">Reproduction of Cell 184</span>
+          </div>
+          <div class="card-body chart-body">
+            <div class="chart-container">
+              <canvas id="modelBarChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <!-- VIEW 4: HASHTAGS & WORD ANALYSIS                              -->
+    <!-- ============================================================= -->
+    <section class="tab-view" id="hashtags-view" aria-labelledby="tab-btn-hashtags">
+      <div class="view-intro">
+        <h2>Hashtag Frequency & Vocabulary Intelligence</h2>
+        <p>Understand the trending hashtags and high-frequency sentiment vocabulary across coronavirus pandemic conversations.</p>
+      </div>
+
+      <div class="hashtags-grid">
+        <!-- Hashtag Chart -->
+        <div class="glass-card full-width">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-badge">FREQUENCY DISTRIBUTION</span>
+              <h3 class="card-title">Top Hashtags by Sentiment Category</h3>
+            </div>
+            <div class="hashtag-filter-row" id="hashtag-filters">
+              <button class="pill-btn active" data-hashtag-filter="Overall">All Hashtags</button>
+              <button class="pill-btn" data-hashtag-filter="Extremely Positive">Extremely Positive</button>
+              <button class="pill-btn" data-hashtag-filter="Positive">Positive</button>
+              <button class="pill-btn" data-hashtag-filter="Neutral">Neutral</button>
+              <button class="pill-btn" data-hashtag-filter="Negative">Negative</button>
+              <button class="pill-btn" data-hashtag-filter="Extremely Negative">Extremely Negative</button>
+            </div>
+          </div>
+          <div class="card-body chart-body">
+            <div class="chart-container bar-tall">
+              <canvas id="hashtagChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Word Cloud / Frequency Pills -->
+        <div class="glass-card full-width">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-badge">WORD FREQUENCY</span>
+              <h3 class="card-title">Prominent Lexical Terms & Vocabulary</h3>
+            </div>
+            <div class="word-filter-row" id="word-filters">
+              <button class="pill-btn active" data-word-filter="All">All Lexicon</button>
+              <button class="pill-btn" data-word-filter="Positive">Positive Words</button>
+              <button class="pill-btn" data-word-filter="Neutral">Neutral Words</button>
+              <button class="pill-btn" data-word-filter="Negative">Negative Words</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="word-cloud-container" id="word-cloud-container">
+              <!-- Dynamically populated keyword pills -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <!-- VIEW 5: BATCH TWEET ANALYZER                                  -->
+    <!-- ============================================================= -->
+    <section class="tab-view" id="batch-view" aria-labelledby="tab-btn-batch">
+      <div class="view-intro">
+        <h2>Batch Tweet & Multi-Line Sentiment Processor</h2>
+        <p>Analyze dozens of tweets simultaneously. Paste multiple lines or inspect summary distribution metrics.</p>
+      </div>
+
+      <div class="batch-grid">
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-badge">BATCH INPUT</span>
+              <h3 class="card-title">Enter Multiple Tweets (One Per Line)</h3>
+            </div>
+            <button class="pill-btn" id="btn-batch-preset">Load 5 Sample Tweets</button>
+          </div>
+          <div class="card-body">
+            <textarea 
+              id="batch-input" 
+              class="custom-textarea" 
+              rows="8" 
+              placeholder="Paste tweets here, one per line...&#10;Line 1: Thank you grocery workers for staying open!&#10;Line 2: Empty shelves again, no food or toilet paper left.&#10;Line 3: Supermarket hours changed starting today."
+            ></textarea>
+            <div class="action-row">
+              <button class="btn btn-primary" id="btn-run-batch">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                <span>Run Batch Sentiment Analysis</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Batch Results Summary -->
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-badge">BATCH SUMMARY</span>
+              <h3 class="card-title">Sentiment Distribution</h3>
+            </div>
+            <span class="info-pill" id="batch-total-analyzed">0 Analyzed</span>
+          </div>
+          <div class="card-body">
+            <div class="batch-summary-stats" id="batch-summary-stats">
+              <div class="batch-stat-card stat-pos">
+                <span class="b-stat-title">Positive</span>
+                <strong class="b-stat-val" id="batch-pos-count">0</strong>
+                <span class="b-stat-pct" id="batch-pos-pct">0%</span>
+              </div>
+              <div class="batch-stat-card stat-neu">
+                <span class="b-stat-title">Neutral</span>
+                <strong class="b-stat-val" id="batch-neu-count">0</strong>
+                <span class="b-stat-pct" id="batch-neu-pct">0%</span>
+              </div>
+              <div class="batch-stat-card stat-neg">
+                <span class="b-stat-title">Negative</span>
+                <strong class="b-stat-val" id="batch-neg-count">0</strong>
+                <span class="b-stat-pct" id="batch-neg-pct">0%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Batch Table -->
+        <div class="glass-card full-width">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-badge">ITEMIZED RESULTS</span>
+              <h3 class="card-title">Processed Tweets Log</h3>
+            </div>
+            <button class="pill-btn" id="btn-export-batch-csv">Export CSV</button>
+          </div>
+          <div class="card-body">
+            <div class="table-scroll-wrapper">
+              <table class="batch-table" id="batch-results-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Tweet Content</th>
+                    <th>Predicted Sentiment</th>
+                    <th>Confidence</th>
+                  </tr>
+                </thead>
+                <tbody id="batch-tbody">
+                  <tr>
+                    <td colspan="4" class="text-center py-6 text-muted">No batch data analyzed yet. Click "Load 5 Sample Tweets" or paste text above.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <p>Coronavirus Tweet Sentiment Analysis &amp; Machine Learning Dashboard &bull; Built with FastAPI, Scikit-Learn &amp; Vanilla CSS</p>
+      <div class="footer-badges">
+        <span class="tech-badge">Python 3</span>
+        <span class="tech-badge">FastAPI</span>
+        <span class="tech-badge">SGD Classifier</span>
+        <span class="tech-badge">Chart.js</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Application Logic -->
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
