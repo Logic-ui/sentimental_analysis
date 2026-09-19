@@ -1064,10 +1064,14 @@ function renderSentimentKeywords(keywords) {
 }
 
 function renderPipelineSteps(steps) {
-  document.getElementById('step-url-mention').textContent = steps.no_mentions_url || 'None';
-  document.getElementById('step-clean-text').textContent = steps.cleaned || 'None';
-
+  const stepUrl = document.getElementById('step-url-mention');
+  const stepClean = document.getElementById('step-clean-text');
   const tokensContainer = document.getElementById('step-stemmed-tokens');
+
+  if (stepUrl) stepUrl.textContent = steps.no_mentions_url || 'None';
+  if (stepClean) stepClean.textContent = steps.cleaned || 'None';
+
+  if (!tokensContainer) return;
   tokensContainer.innerHTML = '';
 
   if (!steps.stemmed || steps.stemmed.length === 0) {
@@ -1088,7 +1092,10 @@ function renderPipelineSteps(steps) {
    ========================================================================== */
 function renderEdaSummary(data) {
   const summary = data.summary;
-  document.getElementById('header-total-tweets').textContent = `${summary.total_tweets.toLocaleString()} Tweets`;
+  const headerTotalEl = document.getElementById('header-total-tweets');
+  if (headerTotalEl) {
+    headerTotalEl.textContent = `${summary.total_tweets.toLocaleString()} Tweets`;
+  }
   animateCountUp('kpi-total-tweets', summary.total_tweets);
   animateCountUp('kpi-locations', summary.unique_locations);
   animateCountUp('kpi-pos-pct', summary.positive_pct, '%');
@@ -1376,11 +1383,16 @@ function renderLeaderboard() {
 }
 
 function renderConfusionMatrix() {
-  const cm = state.benchmarkData.winner_confusion_matrix;
-  document.getElementById('val-tn').textContent = cm.true_negative.toLocaleString();
-  document.getElementById('val-fp').textContent = cm.false_positive.toLocaleString();
-  document.getElementById('val-fn').textContent = cm.false_negative.toLocaleString();
-  document.getElementById('val-tp').textContent = cm.true_positive.toLocaleString();
+  const cm = state.benchmarkData && state.benchmarkData.winner_confusion_matrix;
+  if (!cm) return;
+  const tn = document.getElementById('val-tn');
+  const fp = document.getElementById('val-fp');
+  const fn = document.getElementById('val-fn');
+  const tp = document.getElementById('val-tp');
+  if (tn) tn.textContent = cm.true_negative.toLocaleString();
+  if (fp) fp.textContent = cm.false_positive.toLocaleString();
+  if (fn) fn.textContent = cm.false_negative.toLocaleString();
+  if (tp) tp.textContent = cm.true_positive.toLocaleString();
 }
 
 function renderModelBarChart() {

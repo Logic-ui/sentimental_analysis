@@ -12,8 +12,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
-  <!-- Chart.js for high performance interactive charts -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- Chart.js for high performance interactive charts (Local offline bundle) -->
+  <script src="/static/js/chart.umd.min.js"></script>
   
   <!-- Custom Design System Stylesheet -->
   <link rel="stylesheet" href="/static/css/style.css">
@@ -78,9 +78,9 @@
       </nav>
 
       <div class="dock-right">
-        <div class="telemetry-pill hide-mobile" title="Trained Winner Classifier">
+        <div class="telemetry-pill hide-mobile" title="Dataset Size & Winner Classifier">
           <span class="pulse-beacon"></span>
-          <span class="telemetry-text">SGD 85.96%</span>
+          <span class="telemetry-text"><span id="header-total-tweets">41,157 Tweets</span> &bull; SGD 85.96%</span>
         </div>
         <button class="sound-toggle-btn" id="sound-toggle-btn" title="Toggle Sci-Fi SFX" aria-label="Toggle Sound Effects">
           <span class="sfx-bars" id="sfx-bars">
