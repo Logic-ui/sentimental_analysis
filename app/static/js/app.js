@@ -43,19 +43,13 @@ const soundEngine = {
   },
   updateUI() {
     const btn = document.getElementById('sound-toggle-btn');
-    const iconOn = document.getElementById('sound-icon-on');
-    const iconOff = document.getElementById('sound-icon-off');
     const label = document.getElementById('sound-status-label');
     if (!btn) return;
     if (this.muted) {
       btn.classList.add('muted');
-      if (iconOn) iconOn.style.display = 'none';
-      if (iconOff) iconOff.style.display = 'inline-block';
       if (label) label.textContent = 'SFX: OFF';
     } else {
       btn.classList.remove('muted');
-      if (iconOn) iconOn.style.display = 'inline-block';
-      if (iconOff) iconOff.style.display = 'none';
       if (label) label.textContent = 'SFX: ON';
     }
   },
@@ -86,21 +80,256 @@ const soundEngine = {
   playPredictSound(sentiment) {
     if (this.muted) return;
     if (sentiment.includes('Positive')) {
-      this.playChime(523.25, 'sine', 0.1, 0.08); // C5
+      // Upbeat C-Major Harmonic Triad
+      this.playChime(523.25, 'sine', 0.12, 0.08); // C5
       setTimeout(() => this.playChime(659.25, 'sine', 0.14, 0.08), 80); // E5
       setTimeout(() => this.playChime(783.99, 'sine', 0.22, 0.09), 160); // G5
     } else if (sentiment.includes('Negative')) {
-      this.playChime(415.30, 'triangle', 0.12, 0.08); // G#4
-      setTimeout(() => this.playChime(369.99, 'sawtooth', 0.22, 0.06), 90); // F#4
+      // Deep ominous minor tone
+      this.playChime(220.00, 'triangle', 0.25, 0.08); // A3
+      setTimeout(() => this.playChime(207.65, 'sawtooth', 0.35, 0.05), 100); // G#3
     } else {
-      this.playChime(587.33, 'sine', 0.1, 0.06); // D5
-      setTimeout(() => this.playChime(587.33, 'sine', 0.15, 0.06), 90);
+      // Balanced neutral double chime
+      this.playChime(587.33, 'sine', 0.12, 0.06); // D5
+      setTimeout(() => this.playChime(880.00, 'sine', 0.16, 0.06), 90); // A5
     }
   },
+  playThemeSwitch() {
+    this.playChime(659.25, 'triangle', 0.12, 0.08);
+    setTimeout(() => this.playChime(880.00, 'sine', 0.15, 0.08), 70);
+  },
   playClick() {
-    this.playChime(880, 'sine', 0.04, 0.03);
+    this.playChime(950, 'sine', 0.035, 0.03);
   }
 };
+
+// Live Neural Waveform Equalizer Simulation
+const neuralWaveformEngine = {
+  intervalId: null,
+  startDancing() {
+    const bars = document.querySelectorAll('.wave-bar');
+    const hzEl = document.getElementById('waveform-hz');
+    const neuralStatus = document.getElementById('neural-status-tag');
+    if (neuralStatus) {
+      neuralStatus.innerHTML = `<span class="neural-pulse-dot"></span> INFERENCING...`;
+    }
+    if (this.intervalId) clearInterval(this.intervalId);
+
+    this.intervalId = setInterval(() => {
+      bars.forEach(bar => {
+        const h = Math.floor(Math.random() * 13) + 3;
+        bar.style.height = `${h}px`;
+      });
+      if (hzEl) {
+        hzEl.textContent = `${(Math.random() * 60 + 20).toFixed(1)} Hz`;
+      }
+    }, 70);
+  },
+  settle(sentiment, confidence = 85.0) {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+    }
+    const bars = document.querySelectorAll('.wave-bar');
+    const hzEl = document.getElementById('waveform-hz');
+    const neuralStatus = document.getElementById('neural-status-tag');
+
+    if (neuralStatus) {
+      neuralStatus.innerHTML = `<span class="neural-pulse-dot"></span> NEURAL READY`;
+    }
+
+    const profiles = {
+      positive: [4, 7, 12, 16, 14, 11, 8, 12, 15, 13, 8, 5],
+      negative: [15, 13, 10, 8, 5, 4, 6, 8, 11, 14, 15, 12],
+      neutral: [6, 8, 10, 11, 9, 7, 8, 10, 11, 9, 7, 5]
+    };
+
+    let key = 'neutral';
+    if (sentiment.toLowerCase().includes('positive')) key = 'positive';
+    else if (sentiment.toLowerCase().includes('negative')) key = 'negative';
+
+    const heights = profiles[key];
+    bars.forEach((bar, idx) => {
+      bar.style.height = `${heights[idx % heights.length]}px`;
+    });
+
+    if (hzEl) {
+      hzEl.textContent = `${confidence.toFixed(1)}% CAL`;
+    }
+  }
+};
+
+// Ambient Vibe Switcher (Cyber / Nebula / Solar)
+function initThemeSwitcher() {
+  const dots = document.querySelectorAll('.theme-dot');
+  const savedTheme = localStorage.getItem('sentinel_theme') || 'theme-cyber';
+  applyTheme(savedTheme);
+
+  dots.forEach(dot => {
+    dot.addEventListener('click', () => {
+      const theme = dot.getAttribute('data-theme');
+      applyTheme(theme);
+      localStorage.setItem('sentinel_theme', theme);
+      soundEngine.playThemeSwitch();
+
+      const themeNames = {
+        'theme-cyber': 'Cyber Matrix (Emerald)',
+        'theme-nebula': 'Deep Nebula (Violet)',
+        'theme-solar': 'Solar Flare (Amber)'
+      };
+      showToast(`Vibe Switch: ${themeNames[theme] || theme} 🌌`, 'info');
+    });
+  });
+
+  function applyTheme(theme) {
+    document.body.classList.remove('theme-cyber', 'theme-nebula', 'theme-solar');
+    document.body.classList.add(theme);
+
+    dots.forEach(d => {
+      d.classList.toggle('active', d.getAttribute('data-theme') === theme);
+    });
+  }
+}
+
+// Living HTML5 Canvas Neural Mesh Particle Network
+function initNeuralMeshCanvas() {
+  const canvas = document.getElementById('neural-mesh-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  let width = (canvas.width = window.innerWidth);
+  let height = (canvas.height = window.innerHeight);
+
+  window.addEventListener('resize', () => {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+  });
+
+  const particleCount = Math.min(Math.floor(width * 0.045), 75);
+  const particles = [];
+  const mouse = { x: null, y: null, radius: 170 };
+
+  window.addEventListener('pointermove', (e) => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+  }, { passive: true });
+
+  window.addEventListener('pointerleave', () => {
+    mouse.x = null;
+    mouse.y = null;
+  });
+
+  function getThemeColors() {
+    if (document.body.classList.contains('theme-nebula')) {
+      return { node: 'rgba(168, 85, 247, 0.8)', line: '168, 85, 247', glow: '#A855F7' };
+    } else if (document.body.classList.contains('theme-solar')) {
+      return { node: 'rgba(245, 158, 11, 0.8)', line: '245, 158, 11', glow: '#F59E0B' };
+    }
+    return { node: 'rgba(16, 185, 129, 0.8)', line: '16, 185, 129', glow: '#10B981' };
+  }
+
+  class Particle {
+    constructor() {
+      this.x = Math.random() * width;
+      this.y = Math.random() * height;
+      this.vx = (Math.random() - 0.5) * 0.75;
+      this.vy = (Math.random() - 0.5) * 0.75;
+      this.radius = Math.random() * 1.8 + 1.2;
+    }
+
+    update() {
+      this.x += this.vx;
+      this.y += this.vy;
+
+      if (this.x < 0 || this.x > width) this.vx *= -1;
+      if (this.y < 0 || this.y > height) this.vy *= -1;
+
+      if (mouse.x !== null && mouse.y !== null) {
+        const dx = mouse.x - this.x;
+        const dy = mouse.y - this.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < mouse.radius && dist > 10) {
+          const force = (1 - dist / mouse.radius) * 0.025;
+          this.x += dx * force;
+          this.y += dy * force;
+        }
+      }
+    }
+
+    draw(colors) {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+      ctx.fillStyle = colors.node;
+      ctx.shadowColor = colors.glow;
+      ctx.shadowBlur = 8;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+  }
+
+  for (let i = 0; i < particleCount; i++) {
+    particles.push(new Particle());
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, width, height);
+    const colors = getThemeColors();
+
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < 125) {
+          const alpha = (1 - dist / 125) * 0.22;
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(${colors.line}, ${alpha})`;
+          ctx.lineWidth = 0.8;
+          ctx.stroke();
+        }
+      }
+    }
+
+    particles.forEach(p => {
+      p.update();
+      p.draw(colors);
+    });
+
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+}
+
+// 3D Perspective Card Tilt & Specular Glare Tracker
+function init3DCardTilt() {
+  const cards = document.querySelectorAll('.glass-card');
+  cards.forEach(card => {
+    card.addEventListener('pointermove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      card.style.setProperty('--mouse-x', `${x}px`);
+      card.style.setProperty('--mouse-y', `${y}px`);
+
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const tiltX = -((y - centerY) / centerY) * 4;
+      const tiltY = ((x - centerX) / centerX) * 4;
+
+      card.style.transform = `perspective(1200px) rotateX(${tiltX.toFixed(2)}deg) rotateY(${tiltY.toFixed(2)}deg) translateY(-2px)`;
+    });
+
+    card.addEventListener('pointerleave', () => {
+      card.style.transform = 'perspective(1200px) rotateX(0deg) rotateY(0deg) translateY(0)';
+    });
+  });
+}
 
 // Toast Notifications System
 function showToast(message, type = 'info') {
@@ -170,6 +399,9 @@ const chartTheme = {
 // Initialize Application on DOM Ready
 document.addEventListener('DOMContentLoaded', () => {
   soundEngine.init();
+  initThemeSwitcher();
+  initNeuralMeshCanvas();
+  init3DCardTilt();
   initNavigation();
   initPredictorControls();
   initBatchControls();
@@ -454,6 +686,8 @@ async function runPrediction() {
   predictBtn.disabled = true;
   predictBtn.innerHTML = `<span>Running Neural Inference...</span>`;
 
+  // Start animated frequency equalizer
+  neuralWaveformEngine.startDancing();
   const startTime = performance.now();
 
   try {
@@ -478,6 +712,7 @@ async function runPrediction() {
 
   } catch (err) {
     console.error('Prediction failed:', err);
+    neuralWaveformEngine.settle('neutral', 0);
     showToast('Prediction error. Check backend connection.', 'error');
   } finally {
     predictBtn.disabled = false;
@@ -515,7 +750,10 @@ function renderPredictionResult(data, latencyMs = 12) {
   }
   iconBox.innerHTML = iconSvg;
 
-  // Update SVG Circular Gauge
+  // Settle waveform equalizer into calibrated state
+  neuralWaveformEngine.settle(sentiment, data.confidence);
+
+  // Update SVG Circular Gauge & Orbital Reactor
   updateCircularGauge(data.confidence, sentiment);
 
   // Render Probability Bars
@@ -539,6 +777,7 @@ function renderPredictionResult(data, latencyMs = 12) {
 function updateCircularGauge(confidence, sentiment) {
   const circle = document.getElementById('gauge-fill-circle');
   const verdictDesc = document.getElementById('sentiment-verdict-desc');
+  const plasmaCore = document.getElementById('plasma-core');
   if (!circle) return;
 
   const circumference = 301.59; // 2 * PI * 48
@@ -548,12 +787,21 @@ function updateCircularGauge(confidence, sentiment) {
   circle.classList.remove('pos', 'neu', 'neg');
   if (sentiment.includes('Positive')) {
     circle.classList.add('pos');
-    if (verdictDesc) verdictDesc.textContent = `High positive sentiment detected. Reflects gratitude for frontline workers, community cooperation, or pandemic relief optimism.`;
+    if (plasmaCore) {
+      plasmaCore.style.background = 'radial-gradient(circle, rgba(16, 185, 129, 0.65) 0%, transparent 70%)';
+    }
+    if (verdictDesc) verdictDesc.textContent = `High positive sentiment detected. Reflects gratitude for frontline workers, community solidarity, or pandemic relief optimism.`;
   } else if (sentiment.includes('Negative')) {
     circle.classList.add('neg');
+    if (plasmaCore) {
+      plasmaCore.style.background = 'radial-gradient(circle, rgba(244, 63, 94, 0.65) 0%, transparent 70%)';
+    }
     if (verdictDesc) verdictDesc.textContent = `Negative sentiment detected. Captures pandemic anxiety, supermarket panic buying, price gouging, or supply shortages.`;
   } else {
     circle.classList.add('neu');
+    if (plasmaCore) {
+      plasmaCore.style.background = 'radial-gradient(circle, rgba(6, 182, 212, 0.65) 0%, transparent 70%)';
+    }
     if (verdictDesc) verdictDesc.textContent = `Neutral / Factual observation. Statements regarding store hours, supply chain logistics, or public health guidelines.`;
   }
 }
@@ -573,10 +821,15 @@ function renderTextXRay(attributions) {
       container.appendChild(document.createTextNode((token.is_word ? ' ' : '') + token.text));
     } else {
       const span = document.createElement('span');
-      span.className = `xray-word xray-${token.polarity}`;
+      span.className = `xray-token token-${token.polarity}`;
       span.textContent = token.text;
+
       const sign = token.polarity === 'positive' ? '+' : (token.polarity === 'negative' ? '-' : '~');
-      span.setAttribute('data-tooltip', `${token.polarity.toUpperCase()} (Impact: ${sign}${token.score})`);
+      const hud = document.createElement('span');
+      hud.className = 'token-score-hud';
+      hud.textContent = `${token.polarity.toUpperCase()}: ${sign}${token.score}`;
+      span.appendChild(hud);
+
       container.appendChild(document.createTextNode(' '));
       container.appendChild(span);
     }
@@ -659,6 +912,9 @@ async function runArenaBattle() {
   predictBtn.disabled = true;
   predictBtn.innerHTML = `<span>⚔️ Running 3-Model Battle...</span>`;
 
+  // Start animated frequency equalizer
+  neuralWaveformEngine.startDancing();
+
   try {
     const res = await fetch('/api/predict-arena', {
       method: 'POST',
@@ -673,11 +929,13 @@ async function runArenaBattle() {
 
     const data = await res.json();
     renderArenaOutput(data);
+    neuralWaveformEngine.settle(data.winning_sentiment, 92.5);
     soundEngine.playPredictSound(data.winning_sentiment);
     showToast(`Arena Verdict: ${data.consensus_summary} ⚖️`, 'success');
 
   } catch (err) {
     console.error('Arena battle failed:', err);
+    neuralWaveformEngine.settle('neutral', 0);
     showToast('Arena battle failed. Check backend.', 'error');
   } finally {
     predictBtn.disabled = false;

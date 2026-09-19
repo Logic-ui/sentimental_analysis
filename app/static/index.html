@@ -18,76 +18,80 @@
   <!-- Custom Design System Stylesheet -->
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
-<body class="dark-theme">
+<body class="dark-theme theme-cyber">
+  <!-- Interactive Neural Mesh Background Canvas -->
+  <canvas id="neural-mesh-canvas"></canvas>
+  
+  <!-- Ambient microgrid overlay -->
+  <div class="cyber-grid-overlay"></div>
+
   <!-- Ambient background glow layers -->
   <div class="bg-glow glow-1"></div>
   <div class="bg-glow glow-2"></div>
   <div class="bg-glow glow-3"></div>
 
-  <!-- Top Global Navigation & Hero Bar -->
-  <header class="app-header" id="app-header">
-    <div class="header-container">
-      <div class="brand-section">
-        <div class="brand-logo">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="9"></circle>
-            <path d="M12 3v3m0 12v3M3 12h3m12 0h3"></path>
-            <path d="M6 6l2.5 2.5m7 7l2.5 2.5M18 6l-2.5 2.5m-7 7l-2.5 2.5"></path>
-          </svg>
+  <!-- Floating VisionOS Cyber-Dock Navigation Bar -->
+  <header class="cyber-dock-header" id="app-header">
+    <div class="dock-container">
+      <div class="dock-left">
+        <div class="dock-brand">
+          <div class="brand-radar">
+            <div class="radar-sweep"></div>
+            <span class="brand-core-dot"></span>
+          </div>
+          <div class="brand-titles">
+            <div class="brand-main-title">NEURAL<span class="glow-accent">SENTINEL</span></div>
+            <div class="brand-sub">COVID-19 NLP LAB</div>
+          </div>
         </div>
-        <div class="brand-text">
-          <h1 class="brand-title">COVID-19 <span class="text-gradient">SENTIMENT AI</span></h1>
-          <p class="brand-subtitle">Coronavirus Tweet Intelligence & Prediction Engine</p>
+
+        <!-- Ambient Vibe Switcher -->
+        <div class="theme-switcher-dock" title="Switch Terminal Vibe">
+          <button class="theme-dot dot-cyber active" data-theme="theme-cyber" title="Cyber Matrix (Emerald)"></button>
+          <button class="theme-dot dot-nebula" data-theme="theme-nebula" title="Deep Nebula (Violet)"></button>
+          <button class="theme-dot dot-solar" data-theme="theme-solar" title="Solar Flare (Amber)"></button>
         </div>
       </div>
 
-      <div class="header-stats">
-        <button class="sound-toggle-btn" id="sound-toggle-btn" title="Toggle Sci-Fi Sound Effects" aria-label="Toggle Sci-Fi Sound Effects">
-          <svg class="sound-icon-on" id="sound-icon-on" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
-          <svg class="sound-icon-off" id="sound-icon-off" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
-          <span id="sound-status-label">SFX: ON</span>
-        </button>
-        <div class="stat-pill" title="Top Performing Algorithm from Notebook">
-          <span class="status-dot pulse-green"></span>
-          <span class="stat-label">Model:</span>
-          <span class="stat-value text-emerald">SGD (85.96% Acc)</span>
-        </div>
-        <div class="stat-pill">
-          <span class="stat-label">Dataset:</span>
-          <span class="stat-value" id="header-total-tweets">41,157 Tweets</span>
-        </div>
-        <div class="stat-pill hide-mobile">
-          <span class="stat-label">Dates:</span>
-          <span class="stat-value">Mar–Apr 2020</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Navigation Tabs -->
-    <nav class="main-nav" id="main-nav" aria-label="Main Dashboard Navigation">
-      <div class="nav-container">
-        <button class="nav-tab active" id="tab-btn-predict" data-tab="predict-view">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+      <!-- Center Floating Nav Capsules -->
+      <nav class="dock-nav" id="main-nav" aria-label="Main Navigation">
+        <button class="nav-tab dock-nav-item active" id="tab-btn-predict" data-tab="predict-view">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
           <span>Live Predictor</span>
         </button>
-        <button class="nav-tab" id="tab-btn-eda" data-tab="eda-view">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-          <span>Dataset EDA Graphs</span>
+        <button class="nav-tab dock-nav-item" id="tab-btn-eda" data-tab="eda-view">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+          <span>Dataset EDA</span>
         </button>
-        <button class="nav-tab" id="tab-btn-benchmarks" data-tab="benchmarks-view">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-          <span>Model Leaderboard</span>
+        <button class="nav-tab dock-nav-item" id="tab-btn-benchmarks" data-tab="benchmarks-view">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          <span>Leaderboard</span>
         </button>
-        <button class="nav-tab" id="tab-btn-hashtags" data-tab="hashtags-view">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="9" x2="20" y2="9"></line><line x1="4" y1="15" x2="20" y2="15"></line><line x1="10" y1="3" x2="8" y2="21"></line><line x1="16" y1="3" x2="14" y2="21"></line></svg>
+        <button class="nav-tab dock-nav-item" id="tab-btn-hashtags" data-tab="hashtags-view">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="4" y1="9" x2="20" y2="9"></line><line x1="4" y1="15" x2="20" y2="15"></line><line x1="10" y1="3" x2="8" y2="21"></line><line x1="16" y1="3" x2="14" y2="21"></line></svg>
           <span>Hashtags & Words</span>
         </button>
-        <button class="nav-tab" id="tab-btn-batch" data-tab="batch-view">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-          <span>Batch Analyzer</span>
+        <button class="nav-tab dock-nav-item" id="tab-btn-batch" data-tab="batch-view">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+          <span>Batch Scanner</span>
+        </button>
+      </nav>
+
+      <div class="dock-right">
+        <div class="telemetry-pill hide-mobile" title="Trained Winner Classifier">
+          <span class="pulse-beacon"></span>
+          <span class="telemetry-text">SGD 85.96%</span>
+        </div>
+        <button class="sound-toggle-btn" id="sound-toggle-btn" title="Toggle Sci-Fi SFX" aria-label="Toggle Sound Effects">
+          <span class="sfx-bars" id="sfx-bars">
+            <span class="sfx-bar b1"></span>
+            <span class="sfx-bar b2"></span>
+            <span class="sfx-bar b3"></span>
+          </span>
+          <span id="sound-status-label">SFX: ON</span>
         </button>
       </div>
-    </nav>
+    </div>
   </header>
 
   <!-- Main Content Container -->
@@ -118,7 +122,7 @@
       <!-- Single Predictor Grid -->
       <div class="predictor-grid" id="single-predictor-grid">
         <!-- Input & Controls Column -->
-        <div class="glass-card predictor-input-card">
+        <div class="glass-card border-beam-card predictor-input-card">
           <div class="card-header">
             <div class="card-title-group">
               <span class="card-badge">INPUT CONSOLE</span>
@@ -187,7 +191,7 @@
         </div>
 
         <!-- Prediction Result Output Column -->
-        <div class="glass-card predictor-result-card" id="predictor-result-card">
+        <div class="glass-card border-beam-card predictor-result-card" id="predictor-result-card">
           <div class="card-header">
             <div class="card-title-group">
               <span class="card-badge">PREDICTION OUTPUT</span>
@@ -197,9 +201,14 @@
           </div>
 
           <div class="card-body">
-            <!-- Animated Circular Gauge & Result Hero -->
+            <!-- Holographic Orbital Reactor & Result Hero -->
             <div class="gauge-hero-wrapper" id="sentiment-hero">
-              <div class="circular-gauge-container">
+              <div class="orbital-reactor-container">
+                <div class="orbit-ring orbit-ring-outer"></div>
+                <div class="orbit-ring orbit-ring-mid"></div>
+                <div class="orbit-radar-sweep"></div>
+                <div class="plasma-core" id="plasma-core"></div>
+                
                 <svg class="circular-gauge-svg" viewBox="0 0 120 120">
                   <circle class="gauge-bg" cx="60" cy="60" r="48"></circle>
                   <circle class="gauge-fill" id="gauge-fill-circle" cx="60" cy="60" r="48"></circle>
@@ -214,9 +223,33 @@
               </div>
 
               <div class="sentiment-meta-v2">
-                <span class="sentiment-status-label">Predicted Sentiment</span>
+                <div class="meta-top-badge-row">
+                  <span class="sentiment-status-label">Predicted Sentiment</span>
+                  <span class="pulse-neural-tag" id="neural-status-tag"><span class="neural-pulse-dot"></span> NEURAL READY</span>
+                </div>
                 <h3 class="sentiment-result-text" id="sentiment-result-text">Ready for Input</h3>
                 <p class="sentiment-verdict-desc" id="sentiment-verdict-desc">Enter a tweet or choose a sample to execute inference with calibrated neural confidence.</p>
+                
+                <!-- Live Neural Waveform Equalizer Visualizer -->
+                <div class="neural-waveform-wrap" id="neural-waveform-wrap" title="Simulated Neural Signal Frequency Spectrum">
+                  <span class="waveform-label">NEURAL FREQ:</span>
+                  <div class="waveform-bars" id="waveform-bars">
+                    <span class="wave-bar wb-1"></span>
+                    <span class="wave-bar wb-2"></span>
+                    <span class="wave-bar wb-3"></span>
+                    <span class="wave-bar wb-4"></span>
+                    <span class="wave-bar wb-5"></span>
+                    <span class="wave-bar wb-6"></span>
+                    <span class="wave-bar wb-7"></span>
+                    <span class="wave-bar wb-8"></span>
+                    <span class="wave-bar wb-9"></span>
+                    <span class="wave-bar wb-10"></span>
+                    <span class="wave-bar wb-11"></span>
+                    <span class="wave-bar wb-12"></span>
+                  </div>
+                  <span class="waveform-hz" id="waveform-hz">0.0 Hz</span>
+                </div>
+
                 <div class="action-chips-row">
                   <button class="mini-chip-btn" id="btn-copy-prediction" title="Copy result snippet to clipboard">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
@@ -787,6 +820,7 @@
           <div class="card-body">
             <!-- Drag & Drop File Dropzone -->
             <div class="file-dropzone" id="file-dropzone">
+              <div class="dropzone-radar-line"></div>
               <input type="file" id="batch-file-input" accept=".csv,.txt" style="display: none;">
               <div class="dropzone-inner">
                 <div class="dropzone-icon">
