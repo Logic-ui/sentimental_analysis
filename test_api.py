@@ -59,7 +59,27 @@ def test_all():
     assert batch["total_analyzed"] == 4
     print(f" -> OK: Batch analyzed {batch['total_analyzed']} items successfully. Distribution: {batch['distribution']}")
 
-    print("\n[PASS] ALL BACKEND API TESTS PASSED!")
+    print("7. Testing /api/predict emotion dimensions & attributions payload...")
+    assert "emotions" in pred_pos
+    assert "Optimism & Gratitude" in pred_pos["emotions"]
+    assert "attributions" in pred_pos
+    assert len(pred_pos["attributions"]) > 0
+    print(f" -> OK: Emotions computed: {pred_pos['emotions']}")
+    print(f" -> OK: Text X-Ray token attributions verified: {len(pred_pos['attributions'])} tokens extracted.")
+
+    print("8. Testing /api/predict-arena (Multi-Model Battle Arena)...")
+    status, arena = post("http://127.0.0.1:8000/api/predict-arena", {
+        "text": pos_text,
+        "mode": "three_class"
+    })
+    assert status == 200
+    assert len(arena["models"]) == 3
+    assert arena["consensus_status"] in ["unanimous", "majority", "split"]
+    print(f" -> OK: Arena battle executed across 3 models: {arena['consensus_summary']}.")
+    for m in arena["models"]:
+        print(f"    - {m['name']}: {m['prediction']} ({m['confidence']}%, Latency: {m['latency_ms']}ms)")
+
+    print("\n[PASS] ALL BACKEND API & ARENA TESTS PASSED!")
 
 if __name__ == "__main__":
     test_all()

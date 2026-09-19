@@ -55,23 +55,31 @@ flowchart TD
 
 ## 🌟 Key Features
 
-### 1. ⚡ Live Real-Time Sentiment Predictor
+### 1. ⚡ Live Real-Time Sentiment Predictor & Multi-Model Arena
 - **Multi-Model Inference Engine**:
   - **Stochastic Gradient Descent (SGD Classifier)**: Top performer (**85.96%** accuracy)
   - **Logistic Regression**: High precision linear model (**85.48%** accuracy)
   - **Multinomial Naive Bayes**: Fast probabilistic baseline (**78.79%** accuracy)
+- **⚔️ Multi-Model Battle Arena Mode**:
+  - Execute inference across all 3 classifiers in parallel on a single tweet.
+  - **Consensus Engine**: Calculates unanimous (3/3), majority (2/3), or split verdicts.
+  - Real-time latency tracking (in milliseconds) and side-by-side probability mini-meters.
+- **🎯 Dynamic SVG Circular Gauge**:
+  - Replaces static badges with a smooth, glowing SVG circular confidence meter that sweeps and adapts its glowing hue (Emerald, Cyan, Rose) based on sentiment.
+- **🔬 Text X-Ray (Inline Sentiment Attribution)**:
+  - Highlights positive words in glowing emerald, negative terms in rose, and neutral words in cyan.
+  - Interactive hover tooltips displaying each keyword's TF-IDF impact polarity score.
+- **🕸️ Pandemic Emotion Nuance Radar Chart**:
+  - Chart.js 5-dimensional emotional nuance radar (*Optimism & Gratitude*, *Panic & Urgency*, *Frustration & Grievance*, *Public Health & Safety*, *Factual / Informative*).
+- **🎲 Surprise Me (Live Stream Simulator)**:
+  - Generates authentic pandemic tweets with an animated typewriter effect and instant classification.
 - **Dual Classification Modes**:
   - **3-Class Mode**: Positive, Neutral, Negative with calibrated probabilities.
   - **Binary Mode**: Positive/Neutral vs Negative (primary benchmark from exploratory notebook).
-- **Inference Intelligence**:
-  - Dynamic sentiment hero card with glowing status indicators.
-  - Interactive probability distribution progress bars.
-  - **Top Sentiment Drivers**: Automatically extracts and scores keywords that influenced the prediction.
-  - **NLP Preprocessing Pipeline Inspector**: Visual step-by-step breakdown: raw text &rarr; URL/mention removal &rarr; punctuation strip &rarr; Porter-stemmed tokens.
-- **Quick-Test Samples**: 1-click test buttons preloaded with real pandemic tweets (Healthcare Heroes, Price Gouging, Store Hours Update, etc.).
 
 ### 2. 📊 Exploratory Data Analysis (EDA) Graphs
 - **Dataset Scale**: Evaluated on **41,157 tweets** across **12,220 unique worldwide locations** between March 16 and April 14, 2020.
+- **Animated CountUp KPIs**: Smooth number roll-up animations on dashboard load.
 - **Interactive Visualizations**:
   - **Sentiment Distribution (Donut Chart)**: Toggle between 5-Class, 3-Class, and Binary distributions.
   - **Timeline Trend (Area Chart)**: Chronological daily tweet volume over March–April 2020 (`TweetAt` timeline).
@@ -95,9 +103,15 @@ flowchart TD
 - **Filterable Hashtags**: Inspect top hashtags by sentiment category (`#coronavirus`, `#stayhome`, `#panicbuying`, `#toiletpaper`, `#grocery`).
 - **Lexical Term Cloud**: Prominent terms sized and color-coded proportionally to frequency.
 
-### 5. 📁 Batch Tweet Analyzer
-- Multi-line tweet input or 1-click sample loader.
-- Instant batch inference with distribution KPI cards, searchable table, and **1-click CSV export**.
+### 5. 📁 Batch Tweet Analyzer with Drag & Drop & Live Search
+- **Drag & Drop File Dropzone**: Accepts `.csv` (auto-extracts tweet text column) and `.txt` files (one per line).
+- **Live Search & Sentiment Filters**: Instant search box and filter pills (All, Positive, Neutral, Negative) with counter badges.
+- **One-Click Export & Copy**: Copy batch summary text or download timestamped CSV.
+
+### 6. 🔊 Web Audio Synthesizer (Sci-Fi Sound FX)
+- Pure Web Audio API sound generator (no external audio files).
+- Produces futuristic UI feedback on button clicks and prediction completions.
+- Header toggle button (SFX: ON / OFF) with user preference stored in `localStorage`.
 
 ---
 
@@ -191,6 +205,7 @@ The launcher will verify that trained models exist (or train them automatically 
 | Method | Endpoint | Description | Payload Example |
 |---|---|---|---|
 | `POST` | `/api/predict` | Real-time sentiment prediction, confidence, sentiment drivers, and NLP pipeline breakdown | `{"text": "Vaccine distribution is speeding up!", "model_type": "sgd", "mode": "three_class"}` |
+| `POST` | `/api/predict-arena` | Multi-model parallel battle arena across SGD, Logistic Regression, and Naive Bayes with consensus rating | `{"text": "Vaccine distribution is speeding up!", "mode": "three_class"}` |
 | `POST` | `/api/batch-predict` | Bulk analysis for multiple tweets with distribution metrics | `{"texts": ["Text 1", "Text 2"]}` |
 | `GET` | `/api/eda-stats` | Full dataset statistics, timelines, and top locations | — |
 | `GET` | `/api/model-benchmark` | 7-model leaderboard, metrics, and confusion matrix | — |

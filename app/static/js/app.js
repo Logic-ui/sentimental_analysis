@@ -1,12 +1,13 @@
 /**
  * COVID-19 Sentiment AI - Client Application Logic
  * Integrates Chart.js visualizations, real-time ML inference,
- * EDA analytics, and interactive model benchmarks.
+ * Multi-Model Battle Arena, Text X-Ray, and interactive EDA analytics.
  */
 
 // Global State
 const state = {
   activeTab: 'predict-view',
+  predictorMode: 'single', // 'single' or 'arena'
   edaData: null,
   benchmarkData: null,
   sampleTweets: [],
@@ -14,8 +15,140 @@ const state = {
   activeSentimentDistMode: 'five_class',
   activeHashtagFilter: 'Overall',
   activeWordFilter: 'All',
-  activeMetricFilter: 'accuracy'
+  activeMetricFilter: 'accuracy',
+  batchFilter: 'all',
+  batchSearchQuery: '',
+  lastBatchResults: []
 };
+
+// Pure Web Audio API Sound Synthesizer (No external mp3 assets needed)
+const soundEngine = {
+  audioCtx: null,
+  muted: localStorage.getItem('covid_sfx_muted') === 'true',
+  init() {
+    const btn = document.getElementById('sound-toggle-btn');
+    if (!btn) return;
+    this.updateUI();
+    btn.addEventListener('click', () => {
+      this.muted = !this.muted;
+      localStorage.setItem('covid_sfx_muted', this.muted);
+      this.updateUI();
+      if (!this.muted) {
+        this.playChime(587.33, 'triangle', 0.12, 0.08); // D5 chime
+        showToast('Sound Effects Enabled 🔊', 'info');
+      } else {
+        showToast('Sound Effects Muted 🔇', 'info');
+      }
+    });
+  },
+  updateUI() {
+    const btn = document.getElementById('sound-toggle-btn');
+    const iconOn = document.getElementById('sound-icon-on');
+    const iconOff = document.getElementById('sound-icon-off');
+    const label = document.getElementById('sound-status-label');
+    if (!btn) return;
+    if (this.muted) {
+      btn.classList.add('muted');
+      if (iconOn) iconOn.style.display = 'none';
+      if (iconOff) iconOff.style.display = 'inline-block';
+      if (label) label.textContent = 'SFX: OFF';
+    } else {
+      btn.classList.remove('muted');
+      if (iconOn) iconOn.style.display = 'inline-block';
+      if (iconOff) iconOff.style.display = 'none';
+      if (label) label.textContent = 'SFX: ON';
+    }
+  },
+  playChime(freq = 440, type = 'sine', duration = 0.12, gainVal = 0.06) {
+    if (this.muted) return;
+    try {
+      if (!this.audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        this.audioCtx = new AudioContext();
+      }
+      if (this.audioCtx.state === 'suspended') {
+        this.audioCtx.resume();
+      }
+      const osc = this.audioCtx.createOscillator();
+      const gain = this.audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, this.audioCtx.currentTime);
+      gain.gain.setValueAtTime(gainVal, this.audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, this.audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(this.audioCtx.destination);
+      osc.start();
+      osc.stop(this.audioCtx.currentTime + duration);
+    } catch (e) {
+      // Audio context policy safe fallback
+    }
+  },
+  playPredictSound(sentiment) {
+    if (this.muted) return;
+    if (sentiment.includes('Positive')) {
+      this.playChime(523.25, 'sine', 0.1, 0.08); // C5
+      setTimeout(() => this.playChime(659.25, 'sine', 0.14, 0.08), 80); // E5
+      setTimeout(() => this.playChime(783.99, 'sine', 0.22, 0.09), 160); // G5
+    } else if (sentiment.includes('Negative')) {
+      this.playChime(415.30, 'triangle', 0.12, 0.08); // G#4
+      setTimeout(() => this.playChime(369.99, 'sawtooth', 0.22, 0.06), 90); // F#4
+    } else {
+      this.playChime(587.33, 'sine', 0.1, 0.06); // D5
+      setTimeout(() => this.playChime(587.33, 'sine', 0.15, 0.06), 90);
+    }
+  },
+  playClick() {
+    this.playChime(880, 'sine', 0.04, 0.03);
+  }
+};
+
+// Toast Notifications System
+function showToast(message, type = 'info') {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  
+  let icon = 'ℹ️';
+  if (type === 'success') icon = '✨';
+  if (type === 'warn') icon = '⚠️';
+  if (type === 'error') icon = '🚨';
+  
+  toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+  container.appendChild(toast);
+  
+  requestAnimationFrame(() => toast.classList.add('show'));
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 320);
+  }, 3200);
+}
+
+// CountUp Animated Number Engine
+function animateCountUp(elementId, target, suffix = '', duration = 1100) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  const startTime = performance.now();
+  const isInt = Number.isInteger(target);
+  
+  function update(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const ease = 1 - Math.pow(1 - progress, 3);
+    const current = target * ease;
+    
+    if (isInt) {
+      el.textContent = `${Math.round(current).toLocaleString()}${suffix}`;
+    } else {
+      el.textContent = `${current.toFixed(1)}${suffix}`;
+    }
+    
+    if (progress < 1) {
+      requestAnimationFrame(update);
+    }
+  }
+  requestAnimationFrame(update);
+}
 
 // Chart Theme Configuration
 const chartTheme = {
@@ -36,11 +169,29 @@ const chartTheme = {
 
 // Initialize Application on DOM Ready
 document.addEventListener('DOMContentLoaded', () => {
+  soundEngine.init();
   initNavigation();
   initPredictorControls();
   initBatchControls();
+  initAmbientMouseTracker();
   fetchInitialData();
 });
+
+// Ambient Mouse-Tracker Glow for subtle desktop interactive light
+function initAmbientMouseTracker() {
+  const glow1 = document.querySelector('.glow-1');
+  const glow3 = document.querySelector('.glow-3');
+  if (!glow1 || !glow3) return;
+  
+  window.addEventListener('pointermove', (e) => {
+    const x = e.clientX;
+    const y = e.clientY;
+    requestAnimationFrame(() => {
+      glow1.style.transform = `translate(${x * 0.05}px, ${y * 0.05}px)`;
+      glow3.style.transform = `translate(${x * -0.03}px, ${y * -0.03}px)`;
+    });
+  }, { passive: true });
+}
 
 /* ==========================================================================
    Navigation & Tabs
@@ -130,7 +281,7 @@ async function fetchInitialData() {
 }
 
 /* ==========================================================================
-   View 1: Real-Time Sentiment Predictor Logic
+   View 1: Real-Time Sentiment Predictor & Arena Logic
    ========================================================================== */
 function initPredictorControls() {
   const tweetInput = document.getElementById('tweet-input');
@@ -139,6 +290,10 @@ function initPredictorControls() {
   const predictBtn = document.getElementById('predict-submit-btn');
   const pipelineToggle = document.getElementById('pipeline-toggle-btn');
   const pipelineContent = document.getElementById('pipeline-content');
+  const btnSingleMode = document.getElementById('btn-mode-single');
+  const btnArenaMode = document.getElementById('btn-mode-arena');
+  const btnSurprise = document.getElementById('btn-surprise-me');
+  const btnCopyPrediction = document.getElementById('btn-copy-prediction');
 
   // Character counter
   tweetInput.addEventListener('input', () => {
@@ -151,18 +306,82 @@ function initPredictorControls() {
     tweetInput.value = '';
     charCount.textContent = '0 characters';
     tweetInput.focus();
+    soundEngine.playClick();
   });
 
+  // Mode Switcher (Single vs Arena)
+  btnSingleMode.addEventListener('click', () => setPredictorMode('single'));
+  btnArenaMode.addEventListener('click', () => setPredictorMode('arena'));
+
+  function setPredictorMode(mode) {
+    state.predictorMode = mode;
+    soundEngine.playClick();
+    btnSingleMode.classList.toggle('active', mode === 'single');
+    btnArenaMode.classList.toggle('active', mode === 'arena');
+
+    const singleGrid = document.getElementById('single-predictor-grid');
+    const arenaContainer = document.getElementById('arena-container');
+    const btnText = document.getElementById('predict-btn-text');
+
+    if (mode === 'single') {
+      singleGrid.style.display = 'grid';
+      arenaContainer.style.display = 'none';
+      btnText.textContent = 'Run Sentiment Prediction';
+      showToast('Switched to Single Model Deep Dive', 'info');
+    } else {
+      singleGrid.style.display = 'grid';
+      arenaContainer.style.display = 'flex';
+      btnText.textContent = '⚔️ Run Multi-Model Arena Battle';
+      showToast('Multi-Model Arena Activated ⚔️', 'info');
+    }
+  }
+
   // Submit button
-  predictBtn.addEventListener('click', () => runPrediction());
+  predictBtn.addEventListener('click', () => handlePredictSubmit());
 
   // Keyboard shortcut: Ctrl + Enter
   tweetInput.addEventListener('keydown', (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
       e.preventDefault();
-      runPrediction();
+      handlePredictSubmit();
     }
   });
+
+  // Surprise Me (Typewriter Tweet Stream)
+  btnSurprise.addEventListener('click', () => {
+    soundEngine.playChime(659.25, 'triangle', 0.1, 0.08);
+    const tweetBank = [
+      "Incredible gratitude to all supermarket workers and healthcare heroes stocking shelves and saving lives during COVID-19! #Heroes",
+      "Stores have established special priority morning shopping hours for seniors and vulnerable customers. Super helpful!",
+      "Disgusting price gouging online and in local shops. $40 for generic hand sanitizer is outright robbery during a pandemic.",
+      "Complete panic buying madness at the store today. Total shortage of toilet paper, pasta, and canned beans.",
+      "Local supermarket update: normal operations continue, pharmacy remains open 8am to 8pm daily with social distancing rules.",
+      "Feeling anxious and scared about quarantine isolation, but staying home to protect our community and loved ones. #StaySafe",
+      "Public health announcement: please wash hands with soap for at least 20 seconds and maintain 6ft distance in public markets."
+    ];
+    const randomTweet = tweetBank[Math.floor(Math.random() * tweetBank.length)];
+    typewriterEffect(tweetInput, randomTweet, 15, () => {
+      handlePredictSubmit();
+    });
+  });
+
+  // Copy Prediction Result
+  if (btnCopyPrediction) {
+    btnCopyPrediction.addEventListener('click', () => {
+      const text = tweetInput.value.trim();
+      const sentiment = document.getElementById('sentiment-result-text').textContent;
+      const conf = document.getElementById('confidence-val').textContent;
+      if (!text || sentiment === 'Ready for Input') {
+        showToast('Run an analysis first to copy results.', 'warn');
+        return;
+      }
+      const snippet = `[COVID-19 Sentiment AI]\nTweet: "${text}"\nResult: ${sentiment} (${conf} confidence)`;
+      navigator.clipboard.writeText(snippet).then(() => {
+        soundEngine.playClick();
+        showToast('Prediction copied to clipboard! 📋', 'success');
+      });
+    });
+  }
 
   // Pipeline Accordion Toggle
   pipelineToggle.addEventListener('click', () => {
@@ -171,21 +390,47 @@ function initPredictorControls() {
   });
 }
 
+function handlePredictSubmit() {
+  if (state.predictorMode === 'arena') {
+    runArenaBattle();
+  } else {
+    runPrediction();
+  }
+}
+
+// Typewriter Simulation Function
+function typewriterEffect(inputElement, text, speed = 15, onComplete = null) {
+  inputElement.value = '';
+  let i = 0;
+  function type() {
+    if (i < text.length) {
+      inputElement.value += text.charAt(i);
+      document.getElementById('char-count').textContent = `${inputElement.value.length} characters`;
+      i++;
+      setTimeout(type, speed);
+    } else if (onComplete) {
+      onComplete();
+    }
+  }
+  type();
+}
+
 function populateSampleChips(samples) {
   const container = document.getElementById('sample-chips-container');
   if (!container || !samples.length) return;
 
   container.innerHTML = '';
-  samples.forEach((sample, idx) => {
+  samples.forEach((sample) => {
     const btn = document.createElement('button');
     btn.className = `chip-btn ${sample.sentiment === 'Positive' ? 'chip-pos' : sample.sentiment === 'Negative' ? 'chip-neg' : 'chip-neu'}`;
-    btn.textContent = `${sample.category} • "${sample.text.substring(0, 24)}..."`;
+    btn.textContent = `${sample.category} • "${sample.text.substring(0, 22)}..."`;
     btn.title = sample.text;
     btn.addEventListener('click', () => {
+      soundEngine.playClick();
       const input = document.getElementById('tweet-input');
       input.value = sample.text;
       document.getElementById('char-count').textContent = `${sample.text.length} characters`;
-      runPrediction();
+      handlePredictSubmit();
     });
     container.appendChild(btn);
   });
@@ -197,6 +442,7 @@ async function runPrediction() {
 
   if (!text) {
     tweetInput.focus();
+    showToast('Please type or select a tweet to analyze.', 'warn');
     return;
   }
 
@@ -204,10 +450,11 @@ async function runPrediction() {
   const modeSelect = document.getElementById('mode-select');
   const predictBtn = document.getElementById('predict-submit-btn');
 
-  // Loading animation
   const origBtnContent = predictBtn.innerHTML;
   predictBtn.disabled = true;
-  predictBtn.innerHTML = `<span>Analyzing Sentiment...</span>`;
+  predictBtn.innerHTML = `<span>Running Neural Inference...</span>`;
+
+  const startTime = performance.now();
 
   try {
     const response = await fetch('/api/predict', {
@@ -225,27 +472,30 @@ async function runPrediction() {
     }
 
     const result = await response.json();
-    renderPredictionResult(result);
+    const clientLatency = Math.round(performance.now() - startTime);
+    renderPredictionResult(result, clientLatency);
+    soundEngine.playPredictSound(result.predicted_sentiment);
 
   } catch (err) {
     console.error('Prediction failed:', err);
-    alert('Prediction error. Please ensure the backend is running.');
+    showToast('Prediction error. Check backend connection.', 'error');
   } finally {
     predictBtn.disabled = false;
     predictBtn.innerHTML = origBtnContent;
   }
 }
 
-function renderPredictionResult(data) {
+function renderPredictionResult(data, latencyMs = 12) {
   const sentimentHero = document.getElementById('sentiment-hero');
   const sentimentText = document.getElementById('sentiment-result-text');
   const confidenceVal = document.getElementById('confidence-val');
   const iconBox = document.getElementById('sentiment-icon-box');
   const activeModelTag = document.getElementById('active-model-tag');
+  const latencyPill = document.getElementById('single-latency-pill');
 
   activeModelTag.textContent = data.model_used;
+  if (latencyPill) latencyPill.textContent = `Latency: ${latencyMs}ms`;
 
-  // Clean prior state classes
   sentimentHero.classList.remove('state-positive', 'state-negative', 'state-neutral');
 
   const sentiment = data.predicted_sentiment;
@@ -255,24 +505,249 @@ function renderPredictionResult(data) {
   let iconSvg = '';
   if (sentiment.toLowerCase().includes('positive')) {
     sentimentHero.classList.add('state-positive');
-    iconSvg = `<svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>`;
+    iconSvg = `<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>`;
   } else if (sentiment.toLowerCase().includes('negative')) {
     sentimentHero.classList.add('state-negative');
-    iconSvg = `<svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg>`;
+    iconSvg = `<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg>`;
   } else {
     sentimentHero.classList.add('state-neutral');
-    iconSvg = `<svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="8" y1="12" x2="16" y2="12"></line><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>`;
+    iconSvg = `<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="8" y1="12" x2="16" y2="12"></line><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>`;
   }
   iconBox.innerHTML = iconSvg;
 
+  // Update SVG Circular Gauge
+  updateCircularGauge(data.confidence, sentiment);
+
   // Render Probability Bars
   renderProbabilityBars(data.probabilities, data.mode);
+
+  // Render Text X-Ray Word Attributions
+  renderTextXRay(data.attributions);
+
+  // Render Emotion Dimensions Radar Chart
+  if (data.emotions) {
+    renderEmotionRadar(data.emotions);
+  }
 
   // Render Extracted Sentiment Keywords
   renderSentimentKeywords(data.sentiment_keywords);
 
   // Render Preprocessing Pipeline Steps
   renderPipelineSteps(data.pipeline_steps);
+}
+
+function updateCircularGauge(confidence, sentiment) {
+  const circle = document.getElementById('gauge-fill-circle');
+  const verdictDesc = document.getElementById('sentiment-verdict-desc');
+  if (!circle) return;
+
+  const circumference = 301.59; // 2 * PI * 48
+  const offset = circumference - (confidence / 100) * circumference;
+  circle.style.strokeDashoffset = offset;
+
+  circle.classList.remove('pos', 'neu', 'neg');
+  if (sentiment.includes('Positive')) {
+    circle.classList.add('pos');
+    if (verdictDesc) verdictDesc.textContent = `High positive sentiment detected. Reflects gratitude for frontline workers, community cooperation, or pandemic relief optimism.`;
+  } else if (sentiment.includes('Negative')) {
+    circle.classList.add('neg');
+    if (verdictDesc) verdictDesc.textContent = `Negative sentiment detected. Captures pandemic anxiety, supermarket panic buying, price gouging, or supply shortages.`;
+  } else {
+    circle.classList.add('neu');
+    if (verdictDesc) verdictDesc.textContent = `Neutral / Factual observation. Statements regarding store hours, supply chain logistics, or public health guidelines.`;
+  }
+}
+
+function renderTextXRay(attributions) {
+  const container = document.getElementById('xray-container');
+  if (!container) return;
+
+  if (!attributions || !attributions.length) {
+    container.innerHTML = `<span class="xray-placeholder">No distinctive polarity weights detected for this text.</span>`;
+    return;
+  }
+
+  container.innerHTML = '';
+  attributions.forEach(token => {
+    if (!token.is_word || token.polarity === 'none') {
+      container.appendChild(document.createTextNode((token.is_word ? ' ' : '') + token.text));
+    } else {
+      const span = document.createElement('span');
+      span.className = `xray-word xray-${token.polarity}`;
+      span.textContent = token.text;
+      const sign = token.polarity === 'positive' ? '+' : (token.polarity === 'negative' ? '-' : '~');
+      span.setAttribute('data-tooltip', `${token.polarity.toUpperCase()} (Impact: ${sign}${token.score})`);
+      container.appendChild(document.createTextNode(' '));
+      container.appendChild(span);
+    }
+  });
+}
+
+function renderEmotionRadar(emotions) {
+  const canvas = document.getElementById('emotionRadarChart');
+  if (!canvas) return;
+
+  const labels = Object.keys(emotions);
+  const values = Object.values(emotions);
+
+  if (state.charts.emotionRadar) {
+    state.charts.emotionRadar.data.datasets[0].data = values;
+    state.charts.emotionRadar.update();
+    return;
+  }
+
+  state.charts.emotionRadar = new Chart(canvas, {
+    type: 'radar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Pandemic Nuance Level',
+        data: values,
+        backgroundColor: 'rgba(99, 102, 241, 0.25)',
+        borderColor: '#818cf8',
+        borderWidth: 2,
+        pointBackgroundColor: '#c084fc',
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 1.5,
+        pointRadius: 4,
+        pointHoverRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          min: 0,
+          max: 100,
+          ticks: { display: false, stepSize: 25 },
+          grid: { color: 'rgba(255, 255, 255, 0.08)' },
+          angleLines: { color: 'rgba(255, 255, 255, 0.12)' },
+          pointLabels: {
+            font: { family: "'Inter', sans-serif", size: 10.5, weight: '600' },
+            color: '#CBD5E1'
+          }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(15, 23, 42, 0.95)',
+          callbacks: {
+            label: (ctx) => ` Nuance Score: ${ctx.raw}/100`
+          }
+        }
+      }
+    }
+  });
+}
+
+async function runArenaBattle() {
+  const tweetInput = document.getElementById('tweet-input');
+  const text = tweetInput.value.trim();
+
+  if (!text) {
+    tweetInput.focus();
+    showToast('Enter a tweet to launch the arena battle.', 'warn');
+    return;
+  }
+
+  const modeSelect = document.getElementById('mode-select');
+  const predictBtn = document.getElementById('predict-submit-btn');
+
+  const origBtnContent = predictBtn.innerHTML;
+  predictBtn.disabled = true;
+  predictBtn.innerHTML = `<span>⚔️ Running 3-Model Battle...</span>`;
+
+  try {
+    const res = await fetch('/api/predict-arena', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text: text,
+        mode: modeSelect.value
+      })
+    });
+
+    if (!res.ok) throw new Error('Arena battle failed');
+
+    const data = await res.json();
+    renderArenaOutput(data);
+    soundEngine.playPredictSound(data.winning_sentiment);
+    showToast(`Arena Verdict: ${data.consensus_summary} ⚖️`, 'success');
+
+  } catch (err) {
+    console.error('Arena battle failed:', err);
+    showToast('Arena battle failed. Check backend.', 'error');
+  } finally {
+    predictBtn.disabled = false;
+    predictBtn.innerHTML = origBtnContent;
+  }
+}
+
+function renderArenaOutput(data) {
+  // Consensus Banner
+  const banner = document.getElementById('arena-consensus-banner');
+  const icon = document.getElementById('consensus-icon');
+  const statusBadge = document.getElementById('consensus-status-badge');
+  const modeBadge = document.getElementById('arena-mode-badge');
+  const title = document.getElementById('arena-consensus-title');
+  const desc = document.getElementById('arena-consensus-desc');
+
+  statusBadge.className = `consensus-badge ${data.consensus_status}`;
+  statusBadge.textContent = data.consensus_status.toUpperCase();
+  modeBadge.textContent = data.mode === 'binary' ? 'Binary Mode' : '3-Class Mode';
+  title.textContent = data.consensus_summary;
+
+  if (data.consensus_status === 'unanimous') {
+    icon.textContent = '🌟';
+    desc.textContent = `All 3 machine learning algorithms independently agreed on "${data.winning_sentiment}" sentiment with high confidence.`;
+  } else if (data.consensus_status === 'majority') {
+    icon.textContent = '⚖️';
+    desc.textContent = `2 out of 3 algorithms favored "${data.winning_sentiment}", indicating slight model divergence on edge vocabulary.`;
+  } else {
+    icon.textContent = '⚡';
+    desc.textContent = `Split decision across classifiers. Nuanced sentiment with borderline probability weights.`;
+  }
+
+  // Model Cards (SGD, LR, NB)
+  data.models.forEach(m => {
+    let cardKey = m.model_id === 'logistic_regression' ? 'lr' : (m.model_id === 'naive_bayes' ? 'nb' : 'sgd');
+    const predEl = document.getElementById(`arena-pred-${cardKey}`);
+    const pctEl = document.getElementById(`arena-pct-${cardKey}`);
+    const barEl = document.getElementById(`arena-bar-${cardKey}`);
+    const latEl = document.getElementById(`arena-lat-${cardKey}`);
+
+    if (predEl) {
+      predEl.textContent = m.prediction;
+      predEl.className = `arena-pred-val ${m.prediction.includes('Positive') ? 'text-emerald' : (m.prediction.includes('Negative') ? 'text-rose' : 'text-cyan')}`;
+    }
+    if (pctEl) pctEl.textContent = `${m.confidence}%`;
+    if (barEl) {
+      barEl.style.width = `${m.confidence}%`;
+      barEl.className = `arena-conf-fill ${m.prediction.includes('Positive') ? 'fill-pos' : (m.prediction.includes('Negative') ? 'fill-neg' : 'fill-neu')}`;
+    }
+    if (latEl) latEl.textContent = `${m.latency_ms} ms`;
+
+    // Mini probability breakdown
+    const probPos = document.getElementById(`${cardKey}-prob-pos`);
+    const probNeu = document.getElementById(`${cardKey}-prob-neu`);
+    const probNeg = document.getElementById(`${cardKey}-prob-neg`);
+
+    if (data.mode === 'binary') {
+      if (probPos) probPos.textContent = `${m.probabilities['Positive / Neutral'] || '--'}%`;
+      if (probNeu) probNeu.textContent = 'N/A';
+      if (probNeg) probNeg.textContent = `${m.probabilities['Negative'] || '--'}%`;
+    } else {
+      if (probPos) probPos.textContent = `${m.probabilities['Positive'] || '--'}%`;
+      if (probNeu) probNeu.textContent = `${m.probabilities['Neutral'] || '--'}%`;
+      if (probNeg) probNeg.textContent = `${m.probabilities['Negative'] || '--'}%`;
+    }
+  });
+
+  // Also update Radar, X-Ray, and Single Output to keep both in sync
+  if (data.emotions) renderEmotionRadar(data.emotions);
+  if (data.attributions) renderTextXRay(data.attributions);
 }
 
 function renderProbabilityBars(probs, mode) {
@@ -356,10 +831,10 @@ function renderPipelineSteps(steps) {
 function renderEdaSummary(data) {
   const summary = data.summary;
   document.getElementById('header-total-tweets').textContent = `${summary.total_tweets.toLocaleString()} Tweets`;
-  document.getElementById('kpi-total-tweets').textContent = summary.total_tweets.toLocaleString();
-  document.getElementById('kpi-pos-pct').textContent = `${summary.positive_pct}%`;
-  document.getElementById('kpi-neg-pct').textContent = `${summary.negative_pct}%`;
-  document.getElementById('kpi-locations').textContent = summary.unique_locations.toLocaleString();
+  animateCountUp('kpi-total-tweets', summary.total_tweets);
+  animateCountUp('kpi-locations', summary.unique_locations);
+  animateCountUp('kpi-pos-pct', summary.positive_pct, '%');
+  animateCountUp('kpi-neg-pct', summary.negative_pct, '%');
 }
 
 function renderSentimentDistChart() {
@@ -832,42 +1307,176 @@ function renderWordCloud() {
 }
 
 /* ==========================================================================
-   View 5: Batch Tweet Analyzer
+   View 5: Batch Tweet Analyzer & File Dropzone
    ========================================================================== */
 function initBatchControls() {
   const batchInput = document.getElementById('batch-input');
   const btnRun = document.getElementById('btn-run-batch');
   const btnPreset = document.getElementById('btn-batch-preset');
   const btnExport = document.getElementById('btn-export-batch-csv');
+  const btnCopyBatch = document.getElementById('btn-copy-batch-table');
+  const dropzone = document.getElementById('file-dropzone');
+  const fileInput = document.getElementById('batch-file-input');
+  const browseBtn = document.getElementById('btn-browse-file');
+  const searchInput = document.getElementById('batch-search-input');
+  const filterPills = document.querySelectorAll('#batch-filter-pills .batch-filter-btn');
 
+  // Preset tweets
   btnPreset.addEventListener('click', () => {
+    soundEngine.playClick();
     const samples = [
       "Incredible gratitude to NHS doctors, nurses and grocery staff putting their lives on the line!",
       "Supermarkets announce special early morning hours for the elderly and disabled.",
       "Global food supplies are stable and store distribution is operating normally.",
       "Outrageous price gouging online for hand sanitizers and masks during a health crisis.",
-      "Complete panic buying at the store today, shelves completely bare with zero canned goods."
+      "Complete panic buying at the store today, shelves completely bare with zero canned goods.",
+      "Vaccine trials are showing great early results across international research teams. Hope is on the horizon!",
+      "Store management update: facial masks required for entry, maximum 30 shoppers allowed at once."
     ];
     batchInput.value = samples.join('\n');
+    showToast('Loaded 7 pandemic test tweets into batch analyzer', 'info');
     runBatchAnalysis();
   });
 
-  btnRun.addEventListener('click', () => runBatchAnalysis());
+  // Run batch button
+  btnRun.addEventListener('click', () => {
+    soundEngine.playClick();
+    runBatchAnalysis();
+  });
+
+  // Export CSV
   btnExport.addEventListener('click', () => exportBatchCsv());
+
+  // Copy batch table summary
+  if (btnCopyBatch) {
+    btnCopyBatch.addEventListener('click', () => {
+      if (!state.lastBatchResults.length) {
+        showToast('No batch results to copy. Run an analysis first.', 'warn');
+        return;
+      }
+      let summary = `[COVID-19 Sentiment AI Batch Summary]\nTotal Analyzed: ${state.lastBatchResults.length}\n`;
+      state.lastBatchResults.forEach((r, idx) => {
+        summary += `${idx + 1}. [${r.sentiment} - ${r.confidence}%] ${r.text}\n`;
+      });
+      navigator.clipboard.writeText(summary).then(() => {
+        soundEngine.playClick();
+        showToast('Batch summary copied to clipboard! 📋', 'success');
+      });
+    });
+  }
+
+  // File Dropzone handlers
+  if (dropzone && fileInput) {
+    if (browseBtn) {
+      browseBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        fileInput.click();
+      });
+    }
+    dropzone.addEventListener('click', () => fileInput.click());
+
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('dragover');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('dragover');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+      if (e.dataTransfer.files && e.dataTransfer.files.length) {
+        handleBatchFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files.length) {
+        handleBatchFile(e.target.files[0]);
+      }
+    });
+  }
+
+  // Live Search filter
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      state.batchSearchQuery = searchInput.value.toLowerCase().trim();
+      renderFilteredBatchTable();
+    });
+  }
+
+  // Sentiment Filter pills
+  filterPills.forEach(btn => {
+    btn.addEventListener('click', () => {
+      soundEngine.playClick();
+      filterPills.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.batchFilter = btn.getAttribute('data-filter');
+      renderFilteredBatchTable();
+    });
+  });
 }
 
-let lastBatchResults = [];
+function handleBatchFile(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const content = e.target.result;
+    const lines = content.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+    
+    // Check if CSV with header
+    let extractedTweets = [];
+    if (file.name.endsWith('.csv')) {
+      const firstLine = lines[0].toLowerCase();
+      let textColIdx = -1;
+      const headers = lines[0].split(',').map(h => h.trim().replace(/^["']|["']$/g, ''));
+      
+      headers.forEach((h, idx) => {
+        if (h.includes('tweet') || h.includes('text') || h.includes('content') || h.includes('body')) {
+          textColIdx = idx;
+        }
+      });
+
+      const startIdx = textColIdx !== -1 ? 1 : 0;
+      for (let i = startIdx; i < Math.min(lines.length, 120); i++) {
+        if (textColIdx !== -1) {
+          const cols = lines[i].split(',');
+          if (cols[textColIdx]) {
+            extractedTweets.push(cols[textColIdx].trim().replace(/^["']|["']$/g, ''));
+          }
+        } else {
+          extractedTweets.push(lines[i].replace(/^["']|["']$/g, ''));
+        }
+      }
+    } else {
+      extractedTweets = lines.slice(0, 120);
+    }
+
+    if (extractedTweets.length) {
+      document.getElementById('batch-input').value = extractedTweets.join('\n');
+      showToast(`Loaded ${extractedTweets.length} tweets from "${file.name}" 📂`, 'success');
+      runBatchAnalysis();
+    } else {
+      showToast('Could not extract valid text lines from file.', 'warn');
+    }
+  };
+  reader.readAsText(file);
+}
 
 async function runBatchAnalysis() {
   const input = document.getElementById('batch-input').value.trim();
-  if (!input) return;
+  if (!input) {
+    showToast('Please enter or upload tweets to run batch analysis.', 'warn');
+    return;
+  }
 
   const lines = input.split('\n').map(l => l.trim()).filter(l => l.length > 0);
   if (!lines.length) return;
 
   const btn = document.getElementById('btn-run-batch');
   btn.disabled = true;
-  btn.innerHTML = `<span>Processing ${lines.length} tweets...</span>`;
+  btn.innerHTML = `<span>Processing ${lines.length} tweets in parallel...</span>`;
 
   try {
     const res = await fetch('/api/batch-predict', {
@@ -879,12 +1488,14 @@ async function runBatchAnalysis() {
     if (!res.ok) throw new Error('Batch processing failed');
 
     const data = await res.json();
-    lastBatchResults = data.results;
+    state.lastBatchResults = data.results;
     renderBatchOutput(data);
+    soundEngine.playPredictSound('Positive');
+    showToast(`Successfully classified ${data.total_analyzed} tweets! ✨`, 'success');
 
   } catch (err) {
     console.error('Batch error:', err);
-    alert('Batch prediction error.');
+    showToast('Batch prediction error. Check server logs.', 'error');
   } finally {
     btn.disabled = false;
     btn.innerHTML = `
@@ -898,26 +1509,62 @@ function renderBatchOutput(data) {
   document.getElementById('batch-total-analyzed').textContent = `${data.total_analyzed} Analyzed`;
 
   const dist = data.distribution;
-  document.getElementById('batch-pos-count').textContent = dist.Positive ? dist.Positive.count : 0;
+  const posCount = dist.Positive ? dist.Positive.count : 0;
+  const neuCount = dist.Neutral ? dist.Neutral.count : 0;
+  const negCount = dist.Negative ? dist.Negative.count : 0;
+
+  animateCountUp('batch-pos-count', posCount);
   document.getElementById('batch-pos-pct').textContent = dist.Positive ? `${dist.Positive.percentage}%` : '0%';
 
-  document.getElementById('batch-neu-count').textContent = dist.Neutral ? dist.Neutral.count : 0;
+  animateCountUp('batch-neu-count', neuCount);
   document.getElementById('batch-neu-pct').textContent = dist.Neutral ? `${dist.Neutral.percentage}%` : '0%';
 
-  document.getElementById('batch-neg-count').textContent = dist.Negative ? dist.Negative.count : 0;
+  animateCountUp('batch-neg-count', negCount);
   document.getElementById('batch-neg-pct').textContent = dist.Negative ? `${dist.Negative.percentage}%` : '0%';
 
-  // Render Table
+  // Update filter pill counts
+  const countAll = document.getElementById('count-filter-all');
+  const countPos = document.getElementById('count-filter-pos');
+  const countNeu = document.getElementById('count-filter-neu');
+  const countNeg = document.getElementById('count-filter-neg');
+
+  if (countAll) countAll.textContent = data.total_analyzed;
+  if (countPos) countPos.textContent = posCount;
+  if (countNeu) countNeu.textContent = neuCount;
+  if (countNeg) countNeg.textContent = negCount;
+
+  renderFilteredBatchTable();
+}
+
+function renderFilteredBatchTable() {
   const tbody = document.getElementById('batch-tbody');
+  if (!tbody) return;
   tbody.innerHTML = '';
 
-  data.results.forEach(item => {
+  let filtered = state.lastBatchResults;
+
+  // Sentiment Filter
+  if (state.batchFilter && state.batchFilter !== 'all') {
+    filtered = filtered.filter(item => item.sentiment.toLowerCase() === state.batchFilter.toLowerCase());
+  }
+
+  // Keyword Search
+  if (state.batchSearchQuery) {
+    filtered = filtered.filter(item => item.text.toLowerCase().includes(state.batchSearchQuery));
+  }
+
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="4" class="text-center py-6 text-muted">No tweets match the current filter or search criteria.</td></tr>`;
+    return;
+  }
+
+  filtered.forEach(item => {
     const tr = document.createElement('tr');
     const badgeClass = item.sentiment === 'Positive' ? 'pos' : item.sentiment === 'Negative' ? 'neg' : 'neu';
 
     tr.innerHTML = `
       <td>${item.id}</td>
-      <td style="max-width: 480px; word-break: break-word;">${item.text}</td>
+      <td style="max-width: 480px; word-break: break-word;">${escapeHtml(item.text)}</td>
       <td><span class="sentiment-badge-sm ${badgeClass}">${item.sentiment}</span></td>
       <td><strong>${item.confidence}%</strong></td>
     `;
@@ -925,14 +1572,26 @@ function renderBatchOutput(data) {
   });
 }
 
+function escapeHtml(str) {
+  return str.replace(/[&<>'"]/g, 
+    tag => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      "'": '&#39;',
+      '"': '&quot;'
+    }[tag] || tag)
+  );
+}
+
 function exportBatchCsv() {
-  if (!lastBatchResults.length) {
-    alert('No batch results to export. Run an analysis first.');
+  if (!state.lastBatchResults.length) {
+    showToast('No batch results to export. Run an analysis first.', 'warn');
     return;
   }
 
   let csvContent = 'ID,Tweet,PredictedSentiment,Confidence\n';
-  lastBatchResults.forEach(r => {
+  state.lastBatchResults.forEach(r => {
     const escapedText = `"${r.text.replace(/"/g, '""')}"`;
     csvContent += `${r.id},${escapedText},${r.sentiment},${r.confidence}%\n`;
   });
@@ -945,4 +1604,6 @@ function exportBatchCsv() {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+  soundEngine.playClick();
+  showToast('CSV export downloaded successfully! 📊', 'success');
 }
